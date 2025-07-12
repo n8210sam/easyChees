@@ -1,0 +1,12 @@
+{
+    "name": "數獨遊戲",
+    "short_name": "數獨",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "A beautiful Sudoku game built with Flutter",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": []
+}
