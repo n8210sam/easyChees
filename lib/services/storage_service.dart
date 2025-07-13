@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sudoku_app/models/sudoku_board.dart';
 import 'package:sudoku_app/models/sudoku_cell.dart';
@@ -13,7 +14,9 @@ class StorageService {
       final gameData = _boardToJson(board);
       await prefs.setString(_gameKey, jsonEncode(gameData));
     } catch (e) {
-      print('Error saving game: $e');
+      if (kDebugMode) {
+        debugPrint('Error saving game: $e');
+      }
     }
   }
 
@@ -27,7 +30,9 @@ class StorageService {
         return _boardFromJson(gameData);
       }
     } catch (e) {
-      print('Error loading game: $e');
+      if (kDebugMode) {
+        debugPrint('Error loading game: $e');
+      }
     }
     return null;
   }
@@ -37,7 +42,9 @@ class StorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_gameKey);
     } catch (e) {
-      print('Error clearing saved game: $e');
+      if (kDebugMode) {
+        debugPrint('Error clearing saved game: $e');
+      }
     }
   }
 
@@ -46,7 +53,9 @@ class StorageService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.containsKey(_gameKey);
     } catch (e) {
-      print('Error checking for saved game: $e');
+      if (kDebugMode) {
+        debugPrint('Error checking for saved game: $e');
+      }
       return false;
     }
   }
@@ -114,7 +123,9 @@ class StorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_statisticsKey, jsonEncode(stats.toJson()));
     } catch (e) {
-      print('Error saving statistics: $e');
+      if (kDebugMode) {
+        debugPrint('Error saving statistics: $e');
+      }
     }
   }
 
@@ -128,7 +139,9 @@ class StorageService {
         return GameStatistics.fromJson(statsData);
       }
     } catch (e) {
-      print('Error loading statistics: $e');
+      if (kDebugMode) {
+        debugPrint('Error loading statistics: $e');
+      }
     }
     return GameStatistics();
   }

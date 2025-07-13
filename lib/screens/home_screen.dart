@@ -229,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen>
                   fontWeight: FontWeight.w600,
                 ),
                 elevation: 4,
-                shadowColor: color.withOpacity(0.4),
+                shadowColor: color.withValues(alpha: 0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
