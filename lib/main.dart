@@ -6,7 +6,11 @@ import 'package:sudoku_app/screens/home_screen.dart';
 import 'package:sudoku_app/utils/theme.dart';
 
 void main() {
-  print('=== 數獨遊戲啟動 - 版本 v1.1.0 ===');
+  // Only print in debug mode
+  assert(() {
+    print('=== 數獨遊戲啟動 - 版本 v1.1.1 ===');
+    return true;
+  }());
   runApp(const SudokuApp());
 }
 
@@ -38,4 +42,5 @@ class SudokuApp extends StatelessWidget {
     );
   }
 }
+
 

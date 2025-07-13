@@ -1,4 +1,9 @@
-﻿## [1.1.0] - 2025-07-13 04:57:49
+﻿## [1.1.1] - 2025-07-13 14:51:59
+
+### Change type: patch
+Fix GitHub Actions build issues
+
+## [1.1.0] - 2025-07-13 04:57:49
 
 ### Change type: minor
 Android APK release
@@ -58,6 +63,7 @@ vm minor "?啣????"          # 摰?蝞∠?
 ---
 
 *甇斗?隞嗥?蝞∠?撌亙?芸?蝬剛風*
+
 
 
 
