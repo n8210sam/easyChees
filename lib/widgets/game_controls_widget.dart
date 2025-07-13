@@ -71,10 +71,15 @@ class GameControlsWidget extends StatelessWidget {
           // 提示
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
+              // 計算提示狀態顯示
+              final hintsUsed = gameProvider.currentBoard?.hintsUsed ?? 0;
+              final hintLimit = gameProvider.hintLimit;
+              final hintLabel = isMobile ? '$hintsUsed/$hintLimit' : '提示 $hintsUsed/$hintLimit';
+              
               return _buildCompactButton(
                 context,
                 icon: Icons.lightbulb_outline,
-                label: '提示',
+                label: hintLabel,
                 showLabel: !isMobile,
                 isActive: false,
                 onTap: () => _showHintDialog(context, gameProvider),
@@ -136,10 +141,10 @@ class GameControlsWidget extends StatelessWidget {
     double verticalPadding, horizontalPadding, iconSize, fontSize;
 
     if (isDesktop) {
-      verticalPadding = showLabel ? 18.0 : 20.0;
-      horizontalPadding = showLabel ? 16.0 : 14.0;
-      iconSize = showLabel ? 32.0 : 34.0;
-      fontSize = 13.0;
+      verticalPadding = showLabel ? 16.0 : 18.0; // 減少內邊距
+      horizontalPadding = showLabel ? 14.0 : 12.0; // 減少內邊距
+      iconSize = showLabel ? 28.0 : 30.0; // 減少圖示大小
+      fontSize = 12.0; // 減少字體大小
     } else if (isTablet) {
       verticalPadding = showLabel ? 16.0 : 18.0;
       horizontalPadding = showLabel ? 14.0 : 12.0;
@@ -168,9 +173,9 @@ class GameControlsWidget extends StatelessWidget {
     final isPortrait = MediaQuery.of(context).size.height > screenWidth;
 
     if (screenWidth >= 900) {
-      // 桌面 - 適中矩形按鈕
-      buttonHeight = showLabel ? 85.0 : 70.0;
-      buttonWidth = buttonHeight * 1.4; // 寬度增加40%
+      // 桌面 - 適中矩形按鈕，調整高度避免文字截斷
+      buttonHeight = showLabel ? 95.0 : 75.0; // 增加按鈕高度
+      buttonWidth = buttonHeight * 1.3; // 調整寬高比
     } else if (screenWidth >= 600) {
       // 平板 - 適中矩形按鈕，直式時縮小避免溢出
       buttonHeight = showLabel ? 80.0 : 65.0;

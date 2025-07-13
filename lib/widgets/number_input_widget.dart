@@ -173,9 +173,9 @@ class NumberInputWidget extends StatelessWidget {
                           ),
                           child: Text(
                             remainingCount.toString(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 8,
+                              fontSize: screenWidth >= 900 ? 12.0 : (screenWidth >= 600 ? 11.0 : 10.0),
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,

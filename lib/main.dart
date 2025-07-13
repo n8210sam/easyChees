@@ -1,20 +1,31 @@
 ﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sudoku_app/providers/game_provider.dart';
 import 'package:sudoku_app/providers/settings_provider.dart';
 import 'package:sudoku_app/screens/home_screen.dart';
 import 'package:sudoku_app/utils/theme.dart';
 
-void main() {
+void main() async {
+  // 確保 Flutter 綁定初始化
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 強制直式顯示 (手機和平板)
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   // 開發環境版本號 Log (開發規範要求)
   // ignore: avoid_print
-  print('🚀 === 數獨遊戲啟動 - 版本 v1.2.2+11 === 🚀');
+  print('🚀 === 數獨遊戲啟動 - 版本 v1.2.9+18 === 🚀');
 
   // Additional debug info (only in debug mode)
   if (kDebugMode) {
     debugPrint('🔧 Debug Mode: 數獨遊戲開發環境');
     debugPrint('📱 Platform: ${defaultTargetPlatform.name}');
+    debugPrint('🔒 強制直式顯示已啟用');
   }
 
   runApp(const SudokuApp());

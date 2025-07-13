@@ -95,7 +95,10 @@ class SudokuBoardWidget extends StatelessWidget {
   }
 
   Widget _buildCellContent(BuildContext context, SudokuCell cell, int row, int col) {
+    final isError = board.isCellError(row, col);
+
     if (cell.value != 0) {
+      // 有數值時顯示數值
       return AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         transitionBuilder: (child, animation) {
@@ -115,6 +118,8 @@ class SudokuBoardWidget extends StatelessWidget {
         ),
       );
     } else if (cell.notes.isNotEmpty) {
+      // 沒有數值時顯示筆記
+      // 填錯時筆記隱藏，清除後筆記重現
       return _buildNotesGrid(context, cell.notes);
     } else {
       return const SizedBox.shrink();
@@ -123,31 +128,46 @@ class SudokuBoardWidget extends StatelessWidget {
 
   Widget _buildNotesGrid(BuildContext context, Set<int> notes) {
     return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: ClipRect(
-        child: Wrap(
-          children: List.generate(9, (index) {
-            final number = index + 1;
-            final isHighlighted = highlightedNumber != null &&
-                                  highlightedNumber == number &&
-                                  notes.contains(number);
+      padding: const EdgeInsets.all(1.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // 計算每個筆記格子的尺寸
+          final cellSize = (constraints.maxWidth - 4) / 3; // 3x3網格，減去間距
+          final fontSize = cellSize * 0.6; // 字型大小為格子尺寸的60%
 
-            return SizedBox(
-              width: 12, // 固定寬度
-              height: 12, // 固定高度
-              child: Center(
-                child: Text(
-                  notes.contains(number) ? _getNoteDisplayText(number, isHighlighted) : '',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: notes.contains(number) ? _getNoteTextColor(context, number) : Colors.grey,
-                    fontWeight: FontWeight.w400,
-                  ),
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(3, (row) {
+              return Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(3, (col) {
+                    final number = row * 3 + col + 1; // 1-9的數字
+                    final isHighlighted = highlightedNumber != null &&
+                                          highlightedNumber == number &&
+                                          notes.contains(number);
+
+                    return Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.all(0.5),
+                        child: Center(
+                          child: Text(
+                            notes.contains(number) ? _getNoteDisplayText(number, isHighlighted) : '',
+                            style: TextStyle(
+                              fontSize: fontSize.clamp(8.0, 14.0), // 限制字型大小範圍
+                              color: notes.contains(number) ? _getNoteTextColor(context, number) : Colors.transparent,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
                 ),
-              ),
-            );
-          }),
-        ),
+              );
+            }),
+          );
+        },
       ),
     );
   }

@@ -35,9 +35,9 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
         final isTablet = screenWidth >= 600 && screenWidth < 900;
         final isDesktop = screenWidth >= 900;
 
-        // 響應式容器間距
+        // 響應式容器間距 - 桌面版減少內邊距避免溢出
         final containerPadding = isDesktop 
-            ? const EdgeInsets.all(20.0)
+            ? const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0)
             : isTablet 
                 ? const EdgeInsets.all(16.0)
                 : const EdgeInsets.all(12.0);
@@ -106,14 +106,18 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                           : Colors.grey),
                 ),
 
-                // Hints Used
+                // Hints Used - 顯示為A/B格式
                 _buildCompactInfoItem(
                   context,
                   icon: Icons.lightbulb,
                   label: '提示',
                   showLabel: !isMobile,
-                  value: board.hintsUsed.toString(),
-                  color: Colors.amber,
+                  value: '${board.hintsUsed}/${gameProvider.hintLimit}',
+                  color: board.hintsUsed >= gameProvider.hintLimit
+                      ? Colors.red
+                      : (board.hintsUsed > gameProvider.hintLimit * 0.7
+                          ? Colors.orange
+                          : Colors.amber),
                 ),
               ];
 
@@ -193,41 +197,83 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
             width: 1,
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: iconSize,
-              color: color,
-            ),
-            if (showLabel) ...[
-              SizedBox(height: isMobile ? 2 : 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: labelFontSize,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
+        child: showLabel && !isMobile
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 平板以上：圖示和標題在同一行
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        icon,
+                        size: iconSize,
+                        color: color,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: labelFontSize,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: valueFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 手機版：保持原有佈局
+                  Icon(
+                    icon,
+                    size: iconSize,
+                    color: color,
+                  ),
+                  if (showLabel) ...[
+                    SizedBox(height: isMobile ? 2 : 4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: labelFontSize,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: showLabel ? 2 : 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: valueFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-            ],
-            SizedBox(height: showLabel ? 2 : 4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontSize: valueFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
     );
   }
 

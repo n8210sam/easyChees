@@ -33,10 +33,10 @@ class _GameScreenState extends State<GameScreen> {
     double gameInfoHeight, numberInputHeight, controlsHeight;
 
     if (screenWidth >= 900) {
-      // 桌面 - 增加高度容納極大按鈕
-      gameInfoHeight = 100.0;
+      // 桌面 - 調整高度避免溢出
+      gameInfoHeight = 120.0; // 增加上方資訊框高度
       numberInputHeight = isPortrait ? 190.0 : 110.0;
-      controlsHeight = 100.0;
+      controlsHeight = 120.0; // 增加下方控制鍵高度
     } else if (screenWidth >= 600) {
       // 平板 - 增加高度容納極大按鈕
       gameInfoHeight = 95.0;
@@ -70,8 +70,13 @@ class _GameScreenState extends State<GameScreen> {
           await gameProvider.forcePauseGame(); // 強制暫停並保存
         }
 
+        // 使用 Future.microtask 避免導航衝突
         if (context.mounted) {
-          Navigator.of(context).pop();
+          Future.microtask(() {
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          });
         }
       },
       child: Scaffold(

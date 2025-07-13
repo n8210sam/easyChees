@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 800), // 縮短動畫時間
       vsync: this,
     );
 
@@ -37,14 +37,19 @@ class _HomeScreenState extends State<HomeScreen>
     ));
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
+      begin: const Offset(0, 0.1), // 減少滑動距離
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
     ));
 
-    _animationController.forward();
+    // 延遲啟動動畫，避免與導航衝突
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _animationController.forward();
+      }
+    });
   }
 
   @override

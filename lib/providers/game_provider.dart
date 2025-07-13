@@ -112,12 +112,22 @@ class GameProvider extends ChangeNotifier {
   void _clearRelatedNotes(int number, int filledRow, int filledCol) {
     if (_currentBoard == null) return;
 
+    // 調試輸出
+    if (kDebugMode) {
+      debugPrint('🔍 開始清除筆記: 數字=$number, 位置=($filledRow,$filledCol)');
+    }
+    int clearedCount = 0;
+
     // 清除同行的筆記
     for (int col = 0; col < 9; col++) {
       if (col != filledCol) {
         final cell = _currentBoard!.getCell(filledRow, col);
         if (cell.notes.contains(number)) {
           cell.notes.remove(number);
+          clearedCount++;
+          if (kDebugMode) {
+            debugPrint('  清除同行筆記: ($filledRow,$col)');
+          }
         }
       }
     }
@@ -128,6 +138,10 @@ class GameProvider extends ChangeNotifier {
         final cell = _currentBoard!.getCell(row, filledCol);
         if (cell.notes.contains(number)) {
           cell.notes.remove(number);
+          clearedCount++;
+          if (kDebugMode) {
+            debugPrint('  清除同列筆記: ($row,$filledCol)');
+          }
         }
       }
     }
@@ -142,9 +156,17 @@ class GameProvider extends ChangeNotifier {
           final cell = _currentBoard!.getCell(row, col);
           if (cell.notes.contains(number)) {
             cell.notes.remove(number);
+            clearedCount++;
+            if (kDebugMode) {
+              debugPrint('  清除同宮格筆記: ($row,$col)');
+            }
           }
         }
       }
+    }
+
+    if (kDebugMode) {
+      debugPrint('✅ 筆記清除完成: 共清除 $clearedCount 個筆記');
     }
   }
 
@@ -362,6 +384,23 @@ class GameProvider extends ChangeNotifier {
       return;
     }
 
+    // 連續輸入模式且非筆記模式且有已選數字：優先填入數字
+    if (_isContinuousInputEnabled && !_isNotesMode && _lastSelectedNumber != null) {
+      // 設置選中位置以便 _tryFillNumber 使用
+      _selectedRow = row;
+      _selectedCol = col;
+      _currentBoard!.highlightRelated(row, col);
+
+      // 設置醒目數字
+      _setHighlightedNumber(_lastSelectedNumber);
+
+      // 嘗試填入數字
+      _tryFillNumber();
+
+      notifyListeners();
+      return;
+    }
+
     // 原有的選格子邏輯
     // 如果點擊的是已選中的格子，取消選擇
     if (_selectedRow == row && _selectedCol == col) {
@@ -498,14 +537,15 @@ class GameProvider extends ChangeNotifier {
       oldValue,
       value,
       oldNotes: oldNotes,
-      newNotes: <int>{},
+      newNotes: Set<int>.from(oldNotes), // 保留筆記數據
     );
 
     // 填入數字
     _currentBoard!.setCellValue(_selectedRow!, _selectedCol!, value);
 
     if (value != 0) {
-      cell.notes.clear(); // 清除筆記
+      // 填入數字時不清除筆記，保留在數據中
+      // cell.notes.clear(); // 註釋掉，保留筆記數據
 
       // 填入數字時醒目該數字
       _setHighlightedNumber(value);
@@ -513,6 +553,10 @@ class GameProvider extends ChangeNotifier {
       // 檢查是否填錯（與正確答案不符）
       if (!_currentBoard!.isCellCorrect(_selectedRow!, _selectedCol!)) {
         _currentBoard!.mistakes++;
+        
+        if (kDebugMode) {
+          debugPrint('❌ 填錯數字: $value 在位置 ($_selectedRow,$_selectedCol)');
+        }
 
         // 播放錯誤回饋
         _playErrorFeedback();
@@ -522,6 +566,9 @@ class GameProvider extends ChangeNotifier {
           _handleMistakeLimit();
         }
       } else {
+        if (kDebugMode) {
+          debugPrint('✅ 填對數字: $value 在位置 ($_selectedRow,$_selectedCol)');
+        }
         // 填對時清除相關位置的該數字筆記
         _clearRelatedNotes(value, _selectedRow!, _selectedCol!);
 
@@ -607,8 +654,26 @@ class GameProvider extends ChangeNotifier {
       }
     } else {
       if (cell.value != 0) {
-        _fillNumber(0);
-        return; // _fillNumber 已經處理了記錄和通知
+        // 使用 eraseCell 邏輯而不是 _fillNumber，以保留筆記
+        final oldValue = cell.value;
+        final oldNotes = Set<int>.from(cell.notes);
+        
+        _recordAction(
+          ActionType.deleteValue,
+          _selectedRow!,
+          _selectedCol!,
+          oldValue,
+          0,
+          oldNotes: oldNotes,
+          newNotes: oldNotes, // 保留筆記
+        );
+        
+        _currentBoard!.setCellValue(_selectedRow!, _selectedCol!, 0);
+        // 筆記保持不變
+        
+        notifyListeners();
+        _saveGame();
+        return;
       }
     }
 
@@ -626,36 +691,53 @@ class GameProvider extends ChangeNotifier {
 
     final oldValue = cell.value;
     final oldNotes = Set<int>.from(cell.notes);
+    final isError = _currentBoard!.isCellError(_selectedRow!, _selectedCol!);
 
-    // 只能擦除有筆記的格子或填錯的格子
-    bool canErase = false;
+    // 擦除邏輯：
+    // 1. 如果格子有錯誤值，清除值但保留筆記
+    // 2. 如果格子有正確值，不能擦除
+    // 3. 如果格子沒有值但有筆記，清除筆記
 
-    // 如果有筆記，可以擦除
-    if (cell.notes.isNotEmpty) {
-      canErase = true;
+    bool hasValue = cell.value != 0;
+    bool hasNotes = cell.notes.isNotEmpty;
+
+    if (hasValue) {
+      // 有值的情況
+      if (isError) {
+        // 填錯的格子：清除值但保留筆記
+        _recordAction(
+          ActionType.deleteValue,
+          _selectedRow!,
+          _selectedCol!,
+          oldValue,
+          0,
+          oldNotes: oldNotes,
+          newNotes: oldNotes, // 保留筆記
+        );
+
+        _currentBoard!.setCellValue(_selectedRow!, _selectedCol!, 0);
+        // 筆記保持不變，清除錯誤值後筆記會重新顯示
+      } else {
+        // 正確的值不能擦除
+        return;
+      }
+    } else if (hasNotes) {
+      // 沒有值但有筆記：清除筆記
+      _recordAction(
+        ActionType.clearNotes,
+        _selectedRow!,
+        _selectedCol!,
+        null,
+        null,
+        oldNotes: oldNotes,
+        newNotes: <int>{},
+      );
+
+      cell.notes.clear();
+    } else {
+      // 空格子，無法擦除
+      return;
     }
-
-    // 如果有值且是錯誤的，可以擦除
-    if (cell.value != 0 && _currentBoard!.isCellError(_selectedRow!, _selectedCol!)) {
-      canErase = true;
-    }
-
-    if (!canErase) return;
-
-    // 記錄操作
-    _recordAction(
-      ActionType.deleteValue,
-      _selectedRow!,
-      _selectedCol!,
-      oldValue,
-      0,
-      oldNotes: oldNotes,
-      newNotes: <int>{},
-    );
-
-    // 清除值和筆記
-    _currentBoard!.setCellValue(_selectedRow!, _selectedCol!, 0);
-    cell.notes.clear();
 
     // 清除醒目
     _setHighlightedNumber(null);
@@ -873,8 +955,9 @@ class GameProvider extends ChangeNotifier {
     if (!_isGamePaused) {
       _currentBoard!.pauseTimer(); // 暫停計時
       _isGamePaused = true;
-      notifyListeners();
+      // 先保存再通知，減少重建次數
       await _saveGame(); // 保存遊戲狀態
+      notifyListeners();
     }
   }
 
