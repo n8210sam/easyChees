@@ -1,4 +1,9 @@
-﻿## [1.1.4] - 2025-07-13 16:32:20
+﻿## [1.2.0] - 2025-07-13 17:04:50
+
+### Change type: minor
+Responsive UI - hide Chinese text on mobile, show on tablet+
+
+## [1.1.4] - 2025-07-13 16:32:20
 
 ### Change type: patch
 Fix test issues - all tests now pass
@@ -78,6 +83,7 @@ vm minor "?啣????"          # 摰?蝞∠?
 ---
 
 *甇斗?隞嗥?蝞∠?撌亙?芸?蝬剛風*
+
 
 
 

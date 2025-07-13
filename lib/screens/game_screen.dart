@@ -122,9 +122,6 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
 
-              // Game Controls
-              const GameControlsWidget(),
-
               // Number Input
               Expanded(
                 flex: 1,
@@ -169,6 +166,9 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
+
+              // Game Controls (moved after number input)
+              const GameControlsWidget(),
             ],
           );
         },

@@ -7,70 +7,74 @@ class GameControlsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTabletOrLarger = screenWidth >= 600; // 平板以上顯示中文
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // 第一行：筆記、提示、自動完成
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Notes Mode Toggle
-              Consumer<GameProvider>(
-                builder: (context, gameProvider, child) {
-                  return _buildControlButton(
-                    context,
-                    icon: Icons.edit_note,
-                    label: '筆記',
-                    isActive: gameProvider.isNotesMode,
-                    onTap: gameProvider.toggleNotesMode,
-                  );
-                },
-              ),
-
-              // Hint Button
-              Consumer<GameProvider>(
-                builder: (context, gameProvider, child) {
-                  return _buildControlButton(
-                    context,
-                    icon: Icons.lightbulb_outline,
-                    label: '提示',
-                    isActive: false,
-                    onTap: () => _showHintDialog(context, gameProvider),
-                  );
-                },
-              ),
-
-              // Auto Complete Button
-              Consumer<GameProvider>(
-                builder: (context, gameProvider, child) {
-                  return _buildControlButton(
-                    context,
-                    icon: Icons.auto_fix_high,
-                    label: '自動完成',
-                    isActive: false,
-                    isEnabled: !gameProvider.isGamePaused,
-                    onTap: () => _showAutoCompleteDialog(context, gameProvider),
-                  );
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          // 第二行：撤銷、重做、擦除、連續輸入
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-          
-          // Undo Button
+          // 筆記
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildControlButton(
+              return _buildResponsiveButton(
+                context,
+                icon: Icons.edit_note,
+                label: isTabletOrLarger ? '筆記' : null,
+                isActive: gameProvider.isNotesMode,
+                onTap: gameProvider.toggleNotesMode,
+              );
+            },
+          ),
+
+          // 連續輸入
+          Consumer<GameProvider>(
+            builder: (context, gameProvider, child) {
+              return _buildResponsiveButton(
+                context,
+                icon: Icons.touch_app,
+                label: isTabletOrLarger ? '連續輸入' : null,
+                isActive: gameProvider.isContinuousInputEnabled,
+                onTap: gameProvider.toggleContinuousInput,
+              );
+            },
+          ),
+
+          // 自動完成
+          Consumer<GameProvider>(
+            builder: (context, gameProvider, child) {
+              return _buildResponsiveButton(
+                context,
+                icon: Icons.auto_fix_high,
+                label: isTabletOrLarger ? '自動完成' : null,
+                isActive: false,
+                isEnabled: !gameProvider.isGamePaused,
+                onTap: () => _showAutoCompleteDialog(context, gameProvider),
+              );
+            },
+          ),
+
+          // 提示
+          Consumer<GameProvider>(
+            builder: (context, gameProvider, child) {
+              return _buildResponsiveButton(
+                context,
+                icon: Icons.lightbulb_outline,
+                label: isTabletOrLarger ? '提示' : null,
+                isActive: false,
+                onTap: () => _showHintDialog(context, gameProvider),
+              );
+            },
+          ),
+
+          // 撤銷
+          Consumer<GameProvider>(
+            builder: (context, gameProvider, child) {
+              return _buildResponsiveButton(
                 context,
                 icon: Icons.undo,
-                label: '撤銷',
+                label: isTabletOrLarger ? '撤銷' : null,
                 isActive: false,
                 isEnabled: gameProvider.canUndo,
                 onTap: () => _handleUndo(context, gameProvider),
@@ -78,13 +82,13 @@ class GameControlsWidget extends StatelessWidget {
             },
           ),
 
-          // Redo Button
+          // 重做
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildControlButton(
+              return _buildResponsiveButton(
                 context,
                 icon: Icons.redo,
-                label: '重做',
+                label: isTabletOrLarger ? '重做' : null,
                 isActive: false,
                 isEnabled: gameProvider.canRedo,
                 onTap: () => _handleRedo(context, gameProvider),
@@ -92,50 +96,36 @@ class GameControlsWidget extends StatelessWidget {
             },
           ),
 
-          // Erase Button
+          // 擦除
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildControlButton(
+              return _buildResponsiveButton(
                 context,
-                icon: Icons.cleaning_services,
-                label: '擦除',
+                icon: Icons.backspace_outlined,
+                label: isTabletOrLarger ? '擦除' : null,
                 isActive: false,
-                isEnabled: gameProvider.hasSelectedCell && !gameProvider.isGamePaused,
                 onTap: () => _handleErase(context, gameProvider),
               );
             },
-          ),
-
-              // Continuous Input Toggle
-              Consumer<GameProvider>(
-                builder: (context, gameProvider, child) {
-                  return _buildControlButton(
-                    context,
-                    icon: Icons.touch_app,
-                    label: '連續輸入',
-                    isActive: gameProvider.isContinuousInputEnabled,
-                    onTap: gameProvider.toggleContinuousInput,
-                  );
-                },
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildControlButton(
+  Widget _buildResponsiveButton(
     BuildContext context, {
     required IconData icon,
-    required String label,
+    String? label, // 可選的標籤
     required bool isActive,
     required VoidCallback onTap,
     bool isEnabled = true,
   }) {
-    return Expanded(
+    final hasLabel = label != null && label.isNotEmpty;
+
+    return Flexible(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        padding: const EdgeInsets.symmetric(horizontal: 2.0),
         child: Material(
           color: isActive
               ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
@@ -145,7 +135,10 @@ class GameControlsWidget extends StatelessWidget {
             onTap: isEnabled ? onTap : null,
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              padding: EdgeInsets.symmetric(
+                vertical: hasLabel ? 8.0 : 12.0,
+                horizontal: hasLabel ? 8.0 : 4.0,
+              ),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: isActive
@@ -157,33 +150,43 @@ class GameControlsWidget extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    icon,
-                    size: 24,
-                    color: isActive
-                        ? Theme.of(context).primaryColor
-                        : isEnabled
-                            ? Colors.grey.shade600
-                            : Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+              child: hasLabel
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          icon,
+                          size: 20,
+                          color: isActive
+                              ? Theme.of(context).primaryColor
+                              : isEnabled
+                                  ? Colors.grey.shade600
+                                  : Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: isActive
+                                ? Theme.of(context).primaryColor
+                                : isEnabled
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade400,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Icon(
+                      icon,
+                      size: 24,
                       color: isActive
                           ? Theme.of(context).primaryColor
                           : isEnabled
                               ? Colors.grey.shade600
                               : Colors.grey.shade400,
                     ),
-                  ),
-                ],
-              ),
             ),
           ),
         ),

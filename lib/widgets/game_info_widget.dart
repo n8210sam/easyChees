@@ -30,6 +30,9 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
         final board = gameProvider.currentBoard;
         if (board == null) return const SizedBox.shrink();
 
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isTabletOrLarger = screenWidth >= 600; // 平板以上顯示中文
+
         return Container(
           padding: const EdgeInsets.all(16.0),
           child: Consumer<SettingsProvider>(
@@ -40,10 +43,10 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Difficulty
-                  _buildInfoItem(
+                  _buildResponsiveInfoItem(
                     context,
                     icon: Icons.speed,
-                    label: '難度',
+                    label: isTabletOrLarger ? '難度' : null,
                     value: _getDifficultyText(board.difficulty),
                     color: _getDifficultyColor(board.difficulty),
                   ),
@@ -53,10 +56,10 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                     StreamBuilder<DateTime>(
                       stream: _timeStream,
                       builder: (context, snapshot) {
-                        return _buildInfoItem(
+                        return _buildResponsiveInfoItem(
                           context,
                           icon: Icons.timer,
-                          label: '時間',
+                          label: isTabletOrLarger ? '時間' : null,
                           value: _getElapsedTime(board),
                           color: Colors.blue,
                         );
@@ -64,10 +67,10 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                     ),
 
                   // Lives
-                  _buildInfoItem(
+                  _buildResponsiveInfoItem(
                     context,
                     icon: Icons.favorite,
-                    label: '生命',
+                    label: isTabletOrLarger ? '生命' : null,
                     value: '${board.lives}',
                     color: board.lives <= 1
                         ? Colors.red
@@ -77,10 +80,10 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                   ),
 
               // Mistakes
-              _buildInfoItem(
+              _buildResponsiveInfoItem(
                 context,
                 icon: Icons.error_outline,
-                label: '錯誤',
+                label: isTabletOrLarger ? '錯誤' : null,
                 value: '${board.mistakes}/${gameProvider.maxMistakes}',
                 color: board.mistakes >= gameProvider.maxMistakes
                     ? Colors.red
@@ -90,10 +93,10 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
               ),
 
                   // Hints Used
-                  _buildInfoItem(
+                  _buildResponsiveInfoItem(
                     context,
                     icon: Icons.lightbulb,
-                    label: '提示',
+                    label: isTabletOrLarger ? '提示' : null,
                     value: board.hintsUsed.toString(),
                     color: Colors.amber,
                   ),
@@ -106,16 +109,21 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
     );
   }
 
-  Widget _buildInfoItem(
+  Widget _buildResponsiveInfoItem(
     BuildContext context, {
     required IconData icon,
-    required String label,
+    String? label, // 可選的標籤
     required String value,
     required Color color,
   }) {
+    final hasLabel = label != null && label.isNotEmpty;
+
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+        padding: EdgeInsets.symmetric(
+          vertical: hasLabel ? 8.0 : 6.0,
+          horizontal: hasLabel ? 12.0 : 8.0,
+        ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
@@ -129,23 +137,25 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
           children: [
             Icon(
               icon,
-              size: 20,
+              size: hasLabel ? 18 : 20,
               color: color,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
+            if (hasLabel) ...[
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
+            ],
+            SizedBox(height: hasLabel ? 2 : 4),
             Text(
               value,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: hasLabel ? 12 : 16,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
