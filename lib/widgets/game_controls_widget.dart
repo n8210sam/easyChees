@@ -8,20 +8,21 @@ class GameControlsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isTabletOrLarger = screenWidth >= 600; // 平板以上顯示中文
+    final isMobile = screenWidth < 600; // 手機隱藏中文標題
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // 筆記
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildResponsiveButton(
+              return _buildCompactButton(
                 context,
                 icon: Icons.edit_note,
-                label: isTabletOrLarger ? '筆記' : null,
+                label: '筆記',
+                showLabel: !isMobile,
                 isActive: gameProvider.isNotesMode,
                 onTap: gameProvider.toggleNotesMode,
               );
@@ -31,10 +32,11 @@ class GameControlsWidget extends StatelessWidget {
           // 連續輸入
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildResponsiveButton(
+              return _buildCompactButton(
                 context,
                 icon: Icons.touch_app,
-                label: isTabletOrLarger ? '連續輸入' : null,
+                label: '連續輸入',
+                showLabel: !isMobile,
                 isActive: gameProvider.isContinuousInputEnabled,
                 onTap: gameProvider.toggleContinuousInput,
               );
@@ -44,10 +46,11 @@ class GameControlsWidget extends StatelessWidget {
           // 自動完成
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildResponsiveButton(
+              return _buildCompactButton(
                 context,
                 icon: Icons.auto_fix_high,
-                label: isTabletOrLarger ? '自動完成' : null,
+                label: '自動完成',
+                showLabel: !isMobile,
                 isActive: false,
                 isEnabled: !gameProvider.isGamePaused,
                 onTap: () => _showAutoCompleteDialog(context, gameProvider),
@@ -58,10 +61,11 @@ class GameControlsWidget extends StatelessWidget {
           // 提示
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildResponsiveButton(
+              return _buildCompactButton(
                 context,
                 icon: Icons.lightbulb_outline,
-                label: isTabletOrLarger ? '提示' : null,
+                label: '提示',
+                showLabel: !isMobile,
                 isActive: false,
                 onTap: () => _showHintDialog(context, gameProvider),
               );
@@ -71,10 +75,11 @@ class GameControlsWidget extends StatelessWidget {
           // 撤銷
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildResponsiveButton(
+              return _buildCompactButton(
                 context,
                 icon: Icons.undo,
-                label: isTabletOrLarger ? '撤銷' : null,
+                label: '撤銷',
+                showLabel: !isMobile,
                 isActive: false,
                 isEnabled: gameProvider.canUndo,
                 onTap: () => _handleUndo(context, gameProvider),
@@ -85,10 +90,11 @@ class GameControlsWidget extends StatelessWidget {
           // 重做
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
-              return _buildResponsiveButton(
+              return _buildCompactButton(
                 context,
                 icon: Icons.redo,
-                label: isTabletOrLarger ? '重做' : null,
+                label: '重做',
+                showLabel: !isMobile,
                 isActive: false,
                 isEnabled: gameProvider.canRedo,
                 onTap: () => _handleRedo(context, gameProvider),
@@ -96,32 +102,21 @@ class GameControlsWidget extends StatelessWidget {
             },
           ),
 
-          // 擦除
-          Consumer<GameProvider>(
-            builder: (context, gameProvider, child) {
-              return _buildResponsiveButton(
-                context,
-                icon: Icons.backspace_outlined,
-                label: isTabletOrLarger ? '擦除' : null,
-                isActive: false,
-                onTap: () => _handleErase(context, gameProvider),
-              );
-            },
-          ),
+
         ],
       ),
     );
   }
 
-  Widget _buildResponsiveButton(
+  Widget _buildCompactButton(
     BuildContext context, {
     required IconData icon,
-    String? label, // 可選的標籤
+    required String label,
+    required bool showLabel, // 是否顯示標籤
     required bool isActive,
     required VoidCallback onTap,
     bool isEnabled = true,
   }) {
-    final hasLabel = label != null && label.isNotEmpty;
 
     return Flexible(
       child: Padding(
@@ -136,8 +131,8 @@ class GameControlsWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Container(
               padding: EdgeInsets.symmetric(
-                vertical: hasLabel ? 8.0 : 12.0,
-                horizontal: hasLabel ? 8.0 : 4.0,
+                vertical: showLabel ? 8.0 : 12.0,
+                horizontal: showLabel ? 8.0 : 4.0,
               ),
               decoration: BoxDecoration(
                 border: Border.all(
@@ -150,7 +145,7 @@ class GameControlsWidget extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: hasLabel
+              child: showLabel
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -297,36 +292,6 @@ class GameControlsWidget extends StatelessWidget {
     if (gameProvider.lastUndoMessage != null) {
       _showMessage(context, gameProvider.lastUndoMessage!);
     }
-  }
-
-  void _handleErase(BuildContext context, GameProvider gameProvider) {
-    if (!gameProvider.hasSelectedCell || gameProvider.isGamePaused) return;
-
-    final cell = gameProvider.selectedCell;
-    if (cell == null || cell.isFixed) return;
-
-    // 檢查是否可以擦除
-    bool canErase = false;
-    String message = '';
-
-    if (cell.notes.isNotEmpty) {
-      canErase = true;
-      message = '已清除筆記';
-    }
-
-    if (cell.value != 0 && gameProvider.currentBoard!.isCellError(
-        gameProvider.selectedRow!, gameProvider.selectedCol!)) {
-      canErase = true;
-      message = '已擦除錯誤數字';
-    }
-
-    if (!canErase) {
-      _showMessage(context, '只能擦除筆記或填錯的數字');
-      return;
-    }
-
-    gameProvider.eraseCell();
-    _showMessage(context, message, isSuccess: true);
   }
 
   void _handleRedo(BuildContext context, GameProvider gameProvider) {

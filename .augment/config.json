@@ -162,6 +162,24 @@
     "maxLogFileSize": "10MB",
     "logRotation": true
   },
+  "project": {
+    "name": "數獨遊戲 (EasyChees Sudoku)",
+    "version": "v1.2.1+10",
+    "github": "https://github.com/n8210sam/easyChees",
+    "documentation": {
+      "standards": "DEVELOPMENT_STANDARDS.md",
+      "version_management": "VERSION_MANAGEMENT.md",
+      "developer_guide": "DEVELOPER_GUIDE.md",
+      "project_info": ".augment/project-info.md"
+    },
+    "important_rules": [
+      "開發環境必須 log 版本號 (main.dart)",
+      "UI 按鈕順序固定不可更改",
+      "手機隱藏中文標籤，平板顯示",
+      "修改前後必須測試 (analyze + test)",
+      "每次修改必須更新版本號"
+    ]
+  },
   "developer": {
     "commands": {
       "bump-version": {

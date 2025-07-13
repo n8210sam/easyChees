@@ -1,9 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sudoku_app/providers/settings_provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  String _version = '載入中...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _version = '版本 ${packageInfo.version}+${packageInfo.buildNumber}';
+      });
+    } catch (e) {
+      setState(() {
+        _version = '版本 1.2.1+10';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +138,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '版本 1.0.0',
+                        _version,
                         style: TextStyle(
                           color: Colors.grey[600],
                         ),

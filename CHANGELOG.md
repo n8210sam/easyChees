@@ -1,4 +1,9 @@
-﻿## [1.2.0] - 2025-07-13 17:04:50
+﻿## [1.2.1] - 2025-07-13 17:10:21
+
+### Change type: patch
+Pure frontend responsive UI - no backend changes
+
+## [1.2.0] - 2025-07-13 17:04:50
 
 ### Change type: minor
 Responsive UI - hide Chinese text on mobile, show on tablet+
@@ -83,6 +88,7 @@ vm minor "?啣????"          # 摰?蝞∠?
 ---
 
 *甇斗?隞嗥?蝞∠?撌亙?芸?蝬剛風*
+
 
 
 

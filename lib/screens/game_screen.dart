@@ -19,7 +19,45 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        final gameProvider = Provider.of<GameProvider>(context, listen: false);
+
+        // 暫停遊戲並保存
+        if (gameProvider.currentBoard != null && !gameProvider.isGamePaused) {
+          gameProvider.pauseGame();
+        }
+
+        // 顯示確認對話框
+        final shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('離開遊戲'),
+            content: const Text('確定要回到主頁面嗎？遊戲進度將會保存。'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('確定'),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldPop == true && context.mounted) {
+          Navigator.of(context).pop();
+        } else if (shouldPop == false) {
+          // 用戶取消，恢復遊戲
+          gameProvider.pauseGame();
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('數獨遊戲'),
         actions: [
@@ -172,6 +210,7 @@ class _GameScreenState extends State<GameScreen> {
             ],
           );
         },
+      ),
       ),
     );
   }

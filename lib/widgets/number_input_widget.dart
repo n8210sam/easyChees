@@ -20,22 +20,57 @@ class NumberInputWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Numbers 1-9
-          ...List.generate(9, (index) {
-            final number = index + 1;
-            return _buildNumberButton(context, number);
-          }),
-          
-          // Delete button
-          _buildDeleteButton(context),
-        ],
-      ),
-    );
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = screenSize.height > screenSize.width;
+
+    if (isPortrait) {
+      // 直式畫面：分為兩行
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          children: [
+            // 第一行：數字 1-5
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(5, (index) {
+                final number = index + 1;
+                return _buildNumberButton(context, number);
+              }),
+            ),
+            const SizedBox(height: 8),
+            // 第二行：數字 6-9 + 刪除鍵
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ...List.generate(4, (index) {
+                  final number = index + 6;
+                  return _buildNumberButton(context, number);
+                }),
+                _buildDeleteButton(context),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      // 橫式畫面：單行顯示
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Numbers 1-9
+            ...List.generate(9, (index) {
+              final number = index + 1;
+              return _buildNumberButton(context, number);
+            }),
+
+            // Delete button
+            _buildDeleteButton(context),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildNumberButton(BuildContext context, int number) {

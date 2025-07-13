@@ -31,7 +31,7 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
         if (board == null) return const SizedBox.shrink();
 
         final screenWidth = MediaQuery.of(context).size.width;
-        final isTabletOrLarger = screenWidth >= 600; // 平板以上顯示中文
+        final isMobile = screenWidth < 600; // 手機隱藏中文標題
 
         return Container(
           padding: const EdgeInsets.all(16.0),
@@ -43,10 +43,11 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Difficulty
-                  _buildResponsiveInfoItem(
+                  _buildCompactInfoItem(
                     context,
                     icon: Icons.speed,
-                    label: isTabletOrLarger ? '難度' : null,
+                    label: '難度',
+                    showLabel: !isMobile,
                     value: _getDifficultyText(board.difficulty),
                     color: _getDifficultyColor(board.difficulty),
                   ),
@@ -56,10 +57,11 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                     StreamBuilder<DateTime>(
                       stream: _timeStream,
                       builder: (context, snapshot) {
-                        return _buildResponsiveInfoItem(
+                        return _buildCompactInfoItem(
                           context,
                           icon: Icons.timer,
-                          label: isTabletOrLarger ? '時間' : null,
+                          label: '時間',
+                          showLabel: !isMobile,
                           value: _getElapsedTime(board),
                           color: Colors.blue,
                         );
@@ -67,10 +69,11 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                     ),
 
                   // Lives
-                  _buildResponsiveInfoItem(
+                  _buildCompactInfoItem(
                     context,
                     icon: Icons.favorite,
-                    label: isTabletOrLarger ? '生命' : null,
+                    label: '生命',
+                    showLabel: !isMobile,
                     value: '${board.lives}',
                     color: board.lives <= 1
                         ? Colors.red
@@ -80,10 +83,11 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                   ),
 
               // Mistakes
-              _buildResponsiveInfoItem(
+              _buildCompactInfoItem(
                 context,
                 icon: Icons.error_outline,
-                label: isTabletOrLarger ? '錯誤' : null,
+                label: '錯誤',
+                showLabel: !isMobile,
                 value: '${board.mistakes}/${gameProvider.maxMistakes}',
                 color: board.mistakes >= gameProvider.maxMistakes
                     ? Colors.red
@@ -93,10 +97,11 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
               ),
 
                   // Hints Used
-                  _buildResponsiveInfoItem(
+                  _buildCompactInfoItem(
                     context,
                     icon: Icons.lightbulb,
-                    label: isTabletOrLarger ? '提示' : null,
+                    label: '提示',
+                    showLabel: !isMobile,
                     value: board.hintsUsed.toString(),
                     color: Colors.amber,
                   ),
@@ -109,20 +114,20 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
     );
   }
 
-  Widget _buildResponsiveInfoItem(
+  Widget _buildCompactInfoItem(
     BuildContext context, {
     required IconData icon,
-    String? label, // 可選的標籤
+    required String label,
+    required bool showLabel, // 是否顯示標籤
     required String value,
     required Color color,
   }) {
-    final hasLabel = label != null && label.isNotEmpty;
 
     return Expanded(
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: hasLabel ? 8.0 : 6.0,
-          horizontal: hasLabel ? 12.0 : 8.0,
+          vertical: showLabel ? 8.0 : 6.0,
+          horizontal: showLabel ? 12.0 : 8.0,
         ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
@@ -137,10 +142,10 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
           children: [
             Icon(
               icon,
-              size: hasLabel ? 18 : 20,
+              size: showLabel ? 18 : 20,
               color: color,
             ),
-            if (hasLabel) ...[
+            if (showLabel) ...[
               const SizedBox(height: 4),
               Text(
                 label,
@@ -151,11 +156,11 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                 ),
               ),
             ],
-            SizedBox(height: hasLabel ? 2 : 4),
+            SizedBox(height: showLabel ? 2 : 4),
             Text(
               value,
               style: TextStyle(
-                fontSize: hasLabel ? 12 : 16,
+                fontSize: showLabel ? 12 : 16,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -189,14 +194,19 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
   }
 
   String _getElapsedTime(SudokuBoard board) {
-    if (board.startTime == null) return '00:00';
-    
+    if (board.startTime == null) return '00:00:00';
+
     final now = DateTime.now();
     final elapsed = now.difference(board.startTime!);
-    
-    final minutes = elapsed.inMinutes;
+
+    final hours = elapsed.inHours;
+    final minutes = elapsed.inMinutes % 60;
     final seconds = elapsed.inSeconds % 60;
-    
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else {
+      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
   }
 }
