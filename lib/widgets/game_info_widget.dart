@@ -211,7 +211,7 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                         size: iconSize,
                         color: color,
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         label,
                         style: TextStyle(
@@ -222,7 +222,7 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(

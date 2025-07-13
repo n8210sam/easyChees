@@ -177,5 +177,16 @@
   "extensions.autoUpdate": false,
   "extensions.autoCheckUpdates": false,
   "telemetry.telemetryLevel": "off",
-  "update.mode": "manual"
+  "update.mode": "manual",
+
+  // Context7 MCP 配置
+  "mcp": {
+    "servers": {
+      "context7": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp"]
+      }
+    }
+  }
 }

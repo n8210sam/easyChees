@@ -95,7 +95,6 @@ class SudokuBoardWidget extends StatelessWidget {
   }
 
   Widget _buildCellContent(BuildContext context, SudokuCell cell, int row, int col) {
-    final isError = board.isCellError(row, col);
 
     if (cell.value != 0) {
       // 有數值時顯示數值

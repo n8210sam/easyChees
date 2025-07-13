@@ -178,7 +178,19 @@
       "手機隱藏中文標籤，平板顯示",
       "修改前後必須測試 (analyze + test)",
       "每次修改必須更新版本號"
-    ]
+    ],
+    "mcp": {
+      "context7": {
+        "enabled": true,
+        "description": "Context7 MCP 服務器 - 提供最新的代碼文檔和 API 信息",
+        "usage": "在提示中添加 'use context7' 來獲取最新文檔",
+        "examples": [
+          "implement flutter provider state management. use context7",
+          "create responsive UI layout in flutter. use context7",
+          "setup flutter navigation with go_router. use context7"
+        ]
+      }
+    }
   },
   "developer": {
     "commands": {
@@ -225,6 +237,13 @@
         "script": "scripts/setup-github.ps1",
         "usage": "github-setup [repo-name] [username]",
         "example": "github-setup easychees-sudoku myusername"
+      },
+      "context7-test": {
+        "description": "測試 Context7 MCP 連接",
+        "commands": [
+          "echo 'Testing Context7 MCP connection...'",
+          "echo 'Use: implement flutter provider. use context7'"
+        ]
       }
     },
     "shortcuts": {
@@ -234,7 +253,8 @@
       "qt": "quick-test",
       "ba": "build-android",
       "as": "android-setup",
-      "gs": "github-setup"
+      "gs": "github-setup",
+      "c7": "context7-test"
     },
     "autoCommands": {
       "onFileChange": {
