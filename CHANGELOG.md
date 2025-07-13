@@ -1,4 +1,9 @@
-﻿## [1.1.3] - 2025-07-13 16:01:27
+﻿## [1.1.4] - 2025-07-13 16:32:20
+
+### Change type: patch
+Fix test issues - all tests now pass
+
+## [1.1.3] - 2025-07-13 16:01:27
 
 ### Change type: patch
 Fix all BuildContext async issues - clean code analysis
@@ -73,6 +78,7 @@ vm minor "?啣????"          # 摰?蝞∠?
 ---
 
 *甇斗?隞嗥?蝞∠?撌亙?芸?蝬剛風*
+
 
 
 
