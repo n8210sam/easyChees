@@ -11,6 +11,8 @@ class SudokuBoard {
   Difficulty difficulty;
   DateTime? startTime;
   Duration? elapsedTime;
+  DateTime? pauseStartTime; // 暫停開始時間
+  Duration accumulatedTime; // 累積的遊戲時間
   int hintsUsed;
   int mistakes;
   int lives;
@@ -22,12 +24,15 @@ class SudokuBoard {
     this.difficulty = Difficulty.easy,
     this.startTime,
     this.elapsedTime,
+    this.pauseStartTime,
+    Duration? accumulatedTime,
     this.hintsUsed = 0,
     this.mistakes = 0,
     this.lives = 5,
     this.isCompleted = false,
   }) : grid = grid ?? _createEmptyGrid(),
-       solution = solution ?? _createEmptySolution();
+       solution = solution ?? _createEmptySolution(),
+       accumulatedTime = accumulatedTime ?? Duration.zero;
 
   static List<List<SudokuCell>> _createEmptyGrid() {
     return List.generate(
@@ -152,12 +157,46 @@ class SudokuBoard {
     }
   }
 
+  // 計算當前的遊戲時間（包含累積時間和當前會話時間）
+  Duration getCurrentGameTime() {
+    if (startTime == null) return accumulatedTime;
+    
+    if (pauseStartTime != null) {
+      // 遊戲已暫停，返回累積時間
+      return accumulatedTime;
+    } else {
+      // 遊戲進行中，返回累積時間加上當前會話時間
+      final currentSessionTime = DateTime.now().difference(startTime!);
+      return accumulatedTime + currentSessionTime;
+    }
+  }
+
+  // 暫停遊戲計時
+  void pauseTimer() {
+    if (startTime != null && pauseStartTime == null) {
+      // 累積當前會話的時間
+      final currentSessionTime = DateTime.now().difference(startTime!);
+      accumulatedTime += currentSessionTime;
+      pauseStartTime = DateTime.now();
+    }
+  }
+
+  // 恢復遊戲計時
+  void resumeTimer() {
+    if (pauseStartTime != null) {
+      startTime = DateTime.now(); // 重新設置開始時間
+      pauseStartTime = null;
+    }
+  }
+
   SudokuBoard copyWith({
     List<List<SudokuCell>>? grid,
     List<List<int>>? solution,
     Difficulty? difficulty,
     DateTime? startTime,
     Duration? elapsedTime,
+    DateTime? pauseStartTime,
+    Duration? accumulatedTime,
     int? hintsUsed,
     int? mistakes,
     int? lives,
@@ -175,6 +214,8 @@ class SudokuBoard {
       difficulty: difficulty ?? this.difficulty,
       startTime: startTime ?? this.startTime,
       elapsedTime: elapsedTime ?? this.elapsedTime,
+      pauseStartTime: pauseStartTime ?? this.pauseStartTime,
+      accumulatedTime: accumulatedTime ?? this.accumulatedTime,
       hintsUsed: hintsUsed ?? this.hintsUsed,
       mistakes: mistakes ?? this.mistakes,
       lives: lives ?? this.lives,

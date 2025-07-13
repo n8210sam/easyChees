@@ -24,127 +24,166 @@ class NumberInputWidget extends StatelessWidget {
     final isPortrait = screenSize.height > screenSize.width;
 
     if (isPortrait) {
-      // 直式畫面：分為兩行
+      // 直式畫面：分為兩行 - 緊湊設計
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Column(
           children: [
             // 第一行：數字 1-5
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(5, (index) {
-                final number = index + 1;
-                return _buildNumberButton(context, number);
-              }),
-            ),
-            const SizedBox(height: 8),
-            // 第二行：數字 6-9 + 刪除鍵
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ...List.generate(4, (index) {
-                  final number = index + 6;
-                  return _buildNumberButton(context, number);
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(5, (index) {
+                  final number = index + 1;
+                  return _buildCompactNumberButton(context, number);
                 }),
-                _buildDeleteButton(context),
-              ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            // 第二行：數字 6-9 + 刪除鍵
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ...List.generate(4, (index) {
+                    final number = index + 6;
+                    return _buildCompactNumberButton(context, number);
+                  }),
+                  _buildCompactDeleteButton(context),
+                ],
+              ),
             ),
           ],
         ),
       );
     } else {
-      // 橫式畫面：單行顯示
+      // 橫式畫面：單行顯示 - 緊湊設計
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             // Numbers 1-9
             ...List.generate(9, (index) {
               final number = index + 1;
-              return _buildNumberButton(context, number);
+              return _buildCompactNumberButton(context, number);
             }),
 
             // Delete button
-            _buildDeleteButton(context),
+            _buildCompactDeleteButton(context),
           ],
         ),
       );
     }
   }
 
-  Widget _buildNumberButton(BuildContext context, int number) {
+
+
+  // 緊湊版本的數字按鈕
+  Widget _buildCompactNumberButton(BuildContext context, int number) {
     final isLastSelected = lastSelectedNumber == number;
     final remainingCount = numberCounts[number] ?? 0;
     final isCompleted = remainingCount == 0;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isPortrait = MediaQuery.of(context).size.height > screenWidth;
 
-    return Expanded(
+    // 根據螢幕方向和尺寸調整按鈕尺寸 - 矩形按鈕（寬度加倍）
+    double buttonWidth, buttonHeight, fontSize;
+
+    if (screenWidth >= 900) {
+      // 桌面 - 適中矩形按鈕
+      buttonHeight = isPortrait ? 80.0 : 70.0;
+      buttonWidth = buttonHeight * 1.5; // 寬度增加50%
+      fontSize = isPortrait ? 24.0 : 22.0;
+    } else if (screenWidth >= 600) {
+      // 平板 - 適中矩形按鈕
+      buttonHeight = isPortrait ? 75.0 : 65.0;
+      buttonWidth = buttonHeight * 1.4; // 寬度增加40%
+      fontSize = isPortrait ? 23.0 : 21.0;
+    } else {
+      // 手機 - 保持正方形
+      buttonHeight = isPortrait ? 45.0 : 38.0;
+      buttonWidth = buttonHeight;
+      fontSize = isPortrait ? 18.0 : 16.0;
+    }
+
+    // 根據螢幕尺寸調整間距 - 適中間距
+    final horizontalPadding = screenWidth >= 900 ? 6.0 : (screenWidth >= 600 ? 5.0 : 2.0);
+
+    return Flexible(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2.0),
-        child: AspectRatio(
-          aspectRatio: 1.0,
-          child: GestureDetector(
-            onTap: () => onNumberTap(number),
-            onLongPress: onNumberLongPress != null
-                ? () => onNumberLongPress!(number)
-                : null,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isLastSelected
-                    ? Theme.of(context).primaryColor
-                    : isNotesMode
-                        ? Colors.orange.shade100
-                        : Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isLastSelected
-                      ? Theme.of(context).primaryColor
-                      : isNotesMode
-                          ? Colors.orange.shade300
-                          : Theme.of(context).primaryColor.withValues(alpha: 0.3),
-                  width: isLastSelected ? 2 : 1,
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: SizedBox(
+          width: buttonWidth,
+          height: buttonHeight,
+          child: Material(
+            color: isLastSelected
+                ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                : (isCompleted
+                    ? Colors.grey.shade100
+                    : Colors.white),
+            borderRadius: BorderRadius.circular(6),
+            child: InkWell(
+              onTap: isCompleted ? null : () => onNumberTap(number),
+              onLongPress: isCompleted ? null : () => onNumberLongPress?.call(number),
+              borderRadius: BorderRadius.circular(6),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isLastSelected
+                        ? Theme.of(context).primaryColor
+                        : (isCompleted
+                            ? Colors.grey.shade300
+                            : Colors.grey.shade400),
+                    width: isLastSelected ? 2 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: isLastSelected ? 4 : 2,
-                    offset: Offset(0, isLastSelected ? 2 : 1),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    number.toString(),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: isLastSelected ? FontWeight.bold : FontWeight.w600,
-                      color: isLastSelected
-                          ? Colors.white
-                          : isCompleted
-                              ? Colors.green.shade600
-                              : isNotesMode
-                                  ? Colors.orange.shade700
-                                  : Theme.of(context).primaryColor,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                        number.toString(),
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: isCompleted
+                              ? Colors.grey.shade400
+                              : (isLastSelected
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.black87),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '($remainingCount)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: isLastSelected
-                          ? Colors.white.withValues(alpha: 0.8)
-                          : isCompleted
-                              ? Colors.green.shade600
-                              : isNotesMode
-                                  ? Colors.orange.shade600
-                                  : Theme.of(context).primaryColor.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
+                    if (!isNotesMode && remainingCount < 9)
+                      Positioned(
+                        top: 1,
+                        right: 2,
+                        child: Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            color: isCompleted
+                                ? Colors.grey.shade400
+                                : Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: Text(
+                            remainingCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -153,30 +192,60 @@ class NumberInputWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDeleteButton(BuildContext context) {
-    return Expanded(
+  // 緊湊版本的刪除按鈕
+  Widget _buildCompactDeleteButton(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isPortrait = MediaQuery.of(context).size.height > screenWidth;
+
+    // 根據螢幕方向和尺寸調整按鈕尺寸 - 矩形按鈕（寬度加倍）
+    double buttonWidth, buttonHeight, iconSize;
+
+    if (screenWidth >= 900) {
+      // 桌面 - 適中矩形按鈕
+      buttonHeight = isPortrait ? 80.0 : 70.0;
+      buttonWidth = buttonHeight * 1.5; // 寬度增加50%
+      iconSize = isPortrait ? 26.0 : 24.0;
+    } else if (screenWidth >= 600) {
+      // 平板 - 適中矩形按鈕
+      buttonHeight = isPortrait ? 75.0 : 65.0;
+      buttonWidth = buttonHeight * 1.4; // 寬度增加40%
+      iconSize = isPortrait ? 25.0 : 23.0;
+    } else {
+      // 手機 - 保持正方形
+      buttonHeight = isPortrait ? 45.0 : 38.0;
+      buttonWidth = buttonHeight;
+      iconSize = isPortrait ? 20.0 : 18.0;
+    }
+
+    // 根據螢幕尺寸調整間距 - 適中間距
+    final horizontalPadding = screenWidth >= 900 ? 6.0 : (screenWidth >= 600 ? 5.0 : 2.0);
+
+    return Flexible(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2.0),
-        child: AspectRatio(
-          aspectRatio: 1.0,
-          child: ElevatedButton(
-            onPressed: onDeleteTap,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade50,
-              foregroundColor: Colors.red.shade700,
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: BorderSide(
-                  color: Colors.red.shade200,
-                  width: 1,
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: SizedBox(
+          width: buttonWidth,
+          height: buttonHeight,
+          child: Material(
+            color: Colors.red.shade50,
+            borderRadius: BorderRadius.circular(6),
+            child: InkWell(
+              onTap: onDeleteTap,
+              borderRadius: BorderRadius.circular(6),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.red.shade300,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  Icons.backspace_outlined,
+                  size: iconSize,
+                  color: Colors.red.shade600,
                 ),
               ),
-              padding: EdgeInsets.zero,
-            ),
-            child: const Icon(
-              Icons.backspace_outlined,
-              size: 20,
             ),
           ),
         ),

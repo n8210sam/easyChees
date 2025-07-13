@@ -73,6 +73,8 @@ class StorageService {
       'difficulty': board.difficulty.index,
       'startTime': board.startTime?.millisecondsSinceEpoch,
       'elapsedTime': board.elapsedTime?.inMilliseconds,
+      'pauseStartTime': board.pauseStartTime?.millisecondsSinceEpoch,
+      'accumulatedTime': board.accumulatedTime.inMilliseconds,
       'hintsUsed': board.hintsUsed,
       'mistakes': board.mistakes,
       'lives': board.lives,
@@ -110,6 +112,12 @@ class StorageService {
       elapsedTime: json['elapsedTime'] != null
         ? Duration(milliseconds: json['elapsedTime'] as int)
         : null,
+      pauseStartTime: json['pauseStartTime'] != null
+        ? DateTime.fromMillisecondsSinceEpoch(json['pauseStartTime'] as int)
+        : null,
+      accumulatedTime: json['accumulatedTime'] != null
+        ? Duration(milliseconds: json['accumulatedTime'] as int)
+        : Duration.zero,
       hintsUsed: json['hintsUsed'] as int,
       mistakes: json['mistakes'] as int? ?? 0,
       lives: json['lives'] as int? ?? 5,

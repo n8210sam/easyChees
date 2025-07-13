@@ -10,8 +10,18 @@ class GameControlsWidget extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600; // 手機隱藏中文標題
 
+    // 根據螢幕尺寸調整容器間距 - 適中間距
+    EdgeInsets containerPadding;
+    if (screenWidth >= 900) {
+      containerPadding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0);
+    } else if (screenWidth >= 600) {
+      containerPadding = const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0);
+    } else {
+      containerPadding = const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0);
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      padding: containerPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -117,10 +127,134 @@ class GameControlsWidget extends StatelessWidget {
     required VoidCallback onTap,
     bool isEnabled = true,
   }) {
+    // 響應式尺寸設計
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600 && screenWidth < 900;
+    final isDesktop = screenWidth >= 900;
 
-    return Flexible(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+    // 根據螢幕尺寸調整按鈕尺寸
+    double verticalPadding, horizontalPadding, iconSize, fontSize;
+
+    if (isDesktop) {
+      verticalPadding = showLabel ? 18.0 : 20.0;
+      horizontalPadding = showLabel ? 16.0 : 14.0;
+      iconSize = showLabel ? 32.0 : 34.0;
+      fontSize = 13.0;
+    } else if (isTablet) {
+      verticalPadding = showLabel ? 16.0 : 18.0;
+      horizontalPadding = showLabel ? 14.0 : 12.0;
+      iconSize = showLabel ? 30.0 : 32.0;
+      fontSize = 12.0;
+    } else {
+      // 手機
+      verticalPadding = showLabel ? 8.0 : 10.0;
+      horizontalPadding = showLabel ? 8.0 : 6.0;
+      iconSize = showLabel ? 20.0 : 22.0;
+      fontSize = 10.0;
+    }
+
+    // 根據螢幕尺寸調整按鈕間距 - 適中間距
+    double buttonPadding;
+    if (screenWidth >= 900) {
+      buttonPadding = 6.0;
+    } else if (screenWidth >= 600) {
+      buttonPadding = 4.0;
+    } else {
+      buttonPadding = 2.0;
+    }
+
+    // 根據螢幕尺寸設定按鈕尺寸 - 適中矩形按鈕
+    double buttonWidth, buttonHeight;
+    final isPortrait = MediaQuery.of(context).size.height > screenWidth;
+
+    if (screenWidth >= 900) {
+      // 桌面 - 適中矩形按鈕
+      buttonHeight = showLabel ? 85.0 : 70.0;
+      buttonWidth = buttonHeight * 1.4; // 寬度增加40%
+    } else if (screenWidth >= 600) {
+      // 平板 - 適中矩形按鈕，直式時縮小避免溢出
+      buttonHeight = showLabel ? 80.0 : 65.0;
+      buttonWidth = isPortrait
+          ? buttonHeight * 1.2  // 直式：寬度增加20%，避免溢出
+          : buttonHeight * 1.4; // 橫式：寬度增加40%
+    } else {
+      // 手機 - 保持原有彈性佈局
+      return Flexible(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: buttonPadding),
+          child: Material(
+            color: isActive
+                ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            child: InkWell(
+              onTap: isEnabled ? onTap : null,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  vertical: verticalPadding,
+                  horizontal: horizontalPadding,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isActive
+                        ? Theme.of(context).primaryColor
+                        : isEnabled
+                            ? Colors.grey.shade300
+                            : Colors.grey.shade200,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: showLabel
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            icon,
+                            size: iconSize,
+                            color: isActive
+                                ? Theme.of(context).primaryColor
+                                : isEnabled
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.w500,
+                              color: isActive
+                                  ? Theme.of(context).primaryColor
+                                  : isEnabled
+                                      ? Colors.grey.shade600
+                                      : Colors.grey.shade400,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Icon(
+                        icon,
+                        size: iconSize,
+                        color: isActive
+                            ? Theme.of(context).primaryColor
+                            : isEnabled
+                                ? Colors.grey.shade600
+                                : Colors.grey.shade400,
+                      ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: buttonPadding),
+      child: SizedBox(
+        width: buttonWidth,
+        height: buttonHeight,
         child: Material(
           color: isActive
               ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
@@ -131,8 +265,8 @@ class GameControlsWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Container(
               padding: EdgeInsets.symmetric(
-                vertical: showLabel ? 8.0 : 12.0,
-                horizontal: showLabel ? 8.0 : 4.0,
+                vertical: verticalPadding,
+                horizontal: horizontalPadding,
               ),
               decoration: BoxDecoration(
                 border: Border.all(
@@ -146,41 +280,51 @@ class GameControlsWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: showLabel
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          icon,
-                          size: 20,
-                          color: isActive
-                              ? Theme.of(context).primaryColor
-                              : isEnabled
-                                  ? Colors.grey.shade600
-                                  : Colors.grey.shade400,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            icon,
+                            size: iconSize,
                             color: isActive
                                 ? Theme.of(context).primaryColor
                                 : isEnabled
                                     ? Colors.grey.shade600
                                     : Colors.grey.shade400,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Flexible(
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: fontSize,
+                                fontWeight: FontWeight.w500,
+                                color: isActive
+                                    ? Theme.of(context).primaryColor
+                                    : isEnabled
+                                        ? Colors.grey.shade600
+                                        : Colors.grey.shade400,
+                              ),
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                          ),
+                        ],
+                      ),
                     )
-                  : Icon(
-                      icon,
-                      size: 24,
-                      color: isActive
-                          ? Theme.of(context).primaryColor
-                          : isEnabled
-                              ? Colors.grey.shade600
-                              : Colors.grey.shade400,
+                  : Center(
+                      child: Icon(
+                        icon,
+                        size: iconSize,
+                        color: isActive
+                            ? Theme.of(context).primaryColor
+                            : isEnabled
+                                ? Colors.grey.shade600
+                                : Colors.grey.shade400,
+                      ),
                     ),
             ),
           ),

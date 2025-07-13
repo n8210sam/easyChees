@@ -31,81 +31,106 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
         if (board == null) return const SizedBox.shrink();
 
         final screenWidth = MediaQuery.of(context).size.width;
-        final isMobile = screenWidth < 600; // 手機隱藏中文標題
+        final isMobile = screenWidth < 600;
+        final isTablet = screenWidth >= 600 && screenWidth < 900;
+        final isDesktop = screenWidth >= 900;
+
+        // 響應式容器間距
+        final containerPadding = isDesktop 
+            ? const EdgeInsets.all(20.0)
+            : isTablet 
+                ? const EdgeInsets.all(16.0)
+                : const EdgeInsets.all(12.0);
 
         return Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: containerPadding,
           child: Consumer<SettingsProvider>(
             builder: (context, settingsProvider, child) {
               final showTimer = settingsProvider.showTimer;
 
+              // 響應式間距
+              final itemSpacing = isMobile ? 4.0 : (isTablet ? 6.0 : 8.0);
+
+              final items = <Widget>[
+                // Difficulty
+                _buildCompactInfoItem(
+                  context,
+                  icon: Icons.speed,
+                  label: '難度',
+                  showLabel: !isMobile,
+                  value: _getDifficultyText(board.difficulty),
+                  color: _getDifficultyColor(board.difficulty),
+                ),
+
+                // Timer (conditional)
+                if (showTimer)
+                  StreamBuilder<DateTime>(
+                    stream: _timeStream,
+                    builder: (context, snapshot) {
+                      return _buildCompactInfoItem(
+                        context,
+                        icon: Icons.timer,
+                        label: '時間',
+                        showLabel: !isMobile,
+                        value: _getElapsedTime(board, isMobile),
+                        color: Colors.blue,
+                      );
+                    },
+                  ),
+
+                // Lives
+                _buildCompactInfoItem(
+                  context,
+                  icon: Icons.favorite,
+                  label: '生命',
+                  showLabel: !isMobile,
+                  value: '${board.lives}',
+                  color: board.lives <= 1
+                      ? Colors.red
+                      : (board.lives <= 2
+                          ? Colors.orange
+                          : Colors.pink),
+                ),
+
+                // Mistakes
+                _buildCompactInfoItem(
+                  context,
+                  icon: Icons.error_outline,
+                  label: '錯誤',
+                  showLabel: !isMobile,
+                  value: '${board.mistakes}/${gameProvider.maxMistakes}',
+                  color: board.mistakes >= gameProvider.maxMistakes
+                      ? Colors.red
+                      : (board.mistakes > gameProvider.maxMistakes * 0.7
+                          ? Colors.orange
+                          : Colors.grey),
+                ),
+
+                // Hints Used
+                _buildCompactInfoItem(
+                  context,
+                  icon: Icons.lightbulb,
+                  label: '提示',
+                  showLabel: !isMobile,
+                  value: board.hintsUsed.toString(),
+                  color: Colors.amber,
+                ),
+              ];
+
               return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Difficulty
-                  _buildCompactInfoItem(
-                    context,
-                    icon: Icons.speed,
-                    label: '難度',
-                    showLabel: !isMobile,
-                    value: _getDifficultyText(board.difficulty),
-                    color: _getDifficultyColor(board.difficulty),
-                  ),
-
-                  // Timer (conditional)
-                  if (showTimer)
-                    StreamBuilder<DateTime>(
-                      stream: _timeStream,
-                      builder: (context, snapshot) {
-                        return _buildCompactInfoItem(
-                          context,
-                          icon: Icons.timer,
-                          label: '時間',
-                          showLabel: !isMobile,
-                          value: _getElapsedTime(board),
-                          color: Colors.blue,
-                        );
-                      },
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: index < items.length - 1 ? itemSpacing : 0,
+                      ),
+                      child: item,
                     ),
-
-                  // Lives
-                  _buildCompactInfoItem(
-                    context,
-                    icon: Icons.favorite,
-                    label: '生命',
-                    showLabel: !isMobile,
-                    value: '${board.lives}',
-                    color: board.lives <= 1
-                        ? Colors.red
-                        : (board.lives <= 2
-                            ? Colors.orange
-                            : Colors.pink),
-                  ),
-
-              // Mistakes
-              _buildCompactInfoItem(
-                context,
-                icon: Icons.error_outline,
-                label: '錯誤',
-                showLabel: !isMobile,
-                value: '${board.mistakes}/${gameProvider.maxMistakes}',
-                color: board.mistakes >= gameProvider.maxMistakes
-                    ? Colors.red
-                    : (board.mistakes > gameProvider.maxMistakes * 0.7
-                        ? Colors.orange
-                        : Colors.grey),
-              ),
-
-                  // Hints Used
-                  _buildCompactInfoItem(
-                    context,
-                    icon: Icons.lightbulb,
-                    label: '提示',
-                    showLabel: !isMobile,
-                    value: board.hintsUsed.toString(),
-                    color: Colors.amber,
-                  ),
-                ],
+                  );
+                }).toList(),
               );
             },
           ),
@@ -122,13 +147,44 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
     required String value,
     required Color color,
   }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 900;
+    final isDesktop = screenWidth >= 900;
 
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: showLabel ? 8.0 : 6.0,
-          horizontal: showLabel ? 12.0 : 8.0,
-        ),
+    // 響應式字體大小
+    double iconSize, labelFontSize, valueFontSize;
+    EdgeInsets padding;
+
+    if (isDesktop) {
+      iconSize = showLabel ? 24 : 28;
+      labelFontSize = 14;
+      valueFontSize = showLabel ? 16 : 20;
+      padding = EdgeInsets.symmetric(
+        vertical: showLabel ? 12.0 : 10.0,
+        horizontal: showLabel ? 16.0 : 12.0,
+      );
+    } else if (isTablet) {
+      iconSize = showLabel ? 20 : 24;
+      labelFontSize = 12;
+      valueFontSize = showLabel ? 14 : 18;
+      padding = EdgeInsets.symmetric(
+        vertical: showLabel ? 10.0 : 8.0,
+        horizontal: showLabel ? 14.0 : 10.0,
+      );
+    } else {
+      // 手機
+      iconSize = showLabel ? 16 : 18;
+      labelFontSize = 9;
+      valueFontSize = showLabel ? 10 : 14;
+      padding = EdgeInsets.symmetric(
+        vertical: showLabel ? 6.0 : 4.0,
+        horizontal: showLabel ? 8.0 : 6.0,
+      );
+    }
+
+    return Container(
+        padding: padding,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
@@ -142,32 +198,36 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
           children: [
             Icon(
               icon,
-              size: showLabel ? 18 : 20,
+              size: iconSize,
               color: color,
             ),
             if (showLabel) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: isMobile ? 2 : 4),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: labelFontSize,
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ],
             SizedBox(height: showLabel ? 2 : 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: showLabel ? 12 : 16,
-                fontWeight: FontWeight.bold,
-                color: color,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: valueFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -193,20 +253,29 @@ class _GameInfoWidgetState extends State<GameInfoWidget> {
     }
   }
 
-  String _getElapsedTime(SudokuBoard board) {
-    if (board.startTime == null) return '00:00:00';
-
-    final now = DateTime.now();
-    final elapsed = now.difference(board.startTime!);
+  String _getElapsedTime(SudokuBoard board, [bool isMobile = false]) {
+    final elapsed = board.getCurrentGameTime();
 
     final hours = elapsed.inHours;
     final minutes = elapsed.inMinutes % 60;
     final seconds = elapsed.inSeconds % 60;
 
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    if (isMobile) {
+      // 手機版：更緊湊的格式
+      if (hours > 0) {
+        return '${hours}h${minutes.toString().padLeft(2, '0')}m';
+      } else if (minutes > 0) {
+        return '${minutes}m${seconds.toString().padLeft(2, '0')}s';
+      } else {
+        return '${seconds}s';
+      }
     } else {
-      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      // 平板和桌面版：標準格式
+      if (hours > 0) {
+        return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      } else {
+        return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      }
     }
   }
 }

@@ -85,9 +85,9 @@ vm major "重大更新"
 ---
 
 ## 📚 **重要文檔鏈接**
-- [📋 開發規範](../DEVELOPMENT_STANDARDS.md) ⭐ **必讀**
+- [👨‍💻 開發者指南](../DEVELOPER_GUIDE.md) ⭐ **必讀**
 - [🚀 版本管理](../VERSION_MANAGEMENT.md)
-- [👨‍💻 開發指南](../DEVELOPER_GUIDE.md)
+- [🚀 快速開始](../START_HERE.md)
 - [📝 更新日誌](../CHANGELOG.md)
 
 ---

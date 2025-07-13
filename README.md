@@ -3,9 +3,9 @@
 一個使用 Flutter 開發的精美數獨手機應用程序，支持 Android 和 iOS 平台。
 
 ## 🚨 **開發者必讀**
-- **[📋 開發規範與標準](DEVELOPMENT_STANDARDS.md)** ⭐ **所有開發者必須遵守**
+- **[👨‍💻 開發者指南](DEVELOPER_GUIDE.md)** ⭐ **所有開發者必須遵守**
 - **[🚀 版本管理指南](VERSION_MANAGEMENT.md)** - 版本號管理流程
-- **[👨‍💻 開發者指南](DEVELOPER_GUIDE.md)** - 快速開始指南
+- **[🚀 快速開始](START_HERE.md)** - 新手入門指南
 
 ## 功能特色
 

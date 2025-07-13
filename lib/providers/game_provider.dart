@@ -251,7 +251,7 @@ class GameProvider extends ChangeNotifier {
   int? get highlightedNumber => _highlightedNumber;
   
   SudokuCell? get selectedCell {
-    if (_currentBoard != null && hasSelectedCell) {
+    if (_currentBoard != null && _selectedRow != null && _selectedCol != null) {
       return _currentBoard!.getCell(_selectedRow!, _selectedCol!);
     }
     return null;
@@ -452,7 +452,7 @@ class GameProvider extends ChangeNotifier {
 
   void _tryFillNumber() {
     // 檢查是否有選中格子和選中數字鍵
-    if (!hasSelectedCell || _lastSelectedNumber == null) return;
+    if (_currentBoard == null || _selectedRow == null || _selectedCol == null || _lastSelectedNumber == null) return;
 
     final cell = _currentBoard!.getCell(_selectedRow!, _selectedCol!);
 
@@ -852,14 +852,40 @@ class GameProvider extends ChangeNotifier {
 
   void pauseGame() {
     if (_currentBoard == null) return;
-    _isGamePaused = !_isGamePaused;
+    
+    if (_isGamePaused) {
+      // 恢復遊戲
+      _currentBoard!.resumeTimer();
+      _isGamePaused = false;
+    } else {
+      // 暫停遊戲
+      _currentBoard!.pauseTimer();
+      _isGamePaused = true;
+    }
+    
     notifyListeners();
+    _saveGame();
+  }
+
+  // 強制暫停遊戲（用於返回首頁）
+  Future<void> forcePauseGame() async {
+    if (_currentBoard == null) return;
+    if (!_isGamePaused) {
+      _currentBoard!.pauseTimer(); // 暫停計時
+      _isGamePaused = true;
+      notifyListeners();
+      await _saveGame(); // 保存遊戲狀態
+    }
   }
 
   void _checkGameCompletion() {
+    if (_currentBoard == null) return;
+
     if (_currentBoard!.isBoardComplete()) {
       _currentBoard!.isCompleted = true;
-      _currentBoard!.elapsedTime = DateTime.now().difference(_currentBoard!.startTime!);
+
+      // 使用新的計時機制獲取遊戲時間
+      _currentBoard!.elapsedTime = _currentBoard!.getCurrentGameTime();
 
       // 保存遊戲記錄
       _saveGameRecord();
@@ -885,8 +911,15 @@ class GameProvider extends ChangeNotifier {
   }
 
   void _gameOver() {
+    if (_currentBoard == null) return;
+
+    // 暫停計時
+    _currentBoard!.pauseTimer();
     _isGamePaused = true;
-    _currentBoard!.elapsedTime = DateTime.now().difference(_currentBoard!.startTime!);
+
+    // 使用新的計時機制獲取遊戲時間
+    _currentBoard!.elapsedTime = _currentBoard!.getCurrentGameTime();
+
     // 遊戲失敗時也保存記錄
     _saveGameRecord(isCompleted: false);
     _isGameOver = true; // 標記遊戲結束
@@ -896,8 +929,12 @@ class GameProvider extends ChangeNotifier {
   // 玩家選擇繼續遊戲
   void continueGame() {
     _showLifeLostDialog = false;
+    if (_currentBoard != null) {
+      _currentBoard!.resumeTimer(); // 恢復計時
+    }
     _isGamePaused = false;
     notifyListeners();
+    _saveGame();
   }
 
   // 玩家選擇放棄遊戲
@@ -946,6 +983,12 @@ class GameProvider extends ChangeNotifier {
       _actionHistory.clear(); // 載入遊戲時清除歷史記錄
       _redoHistory.clear(); // 清除重做歷史
       _lastUndoMessage = null; // 清除撤銷訊息
+      
+      // 恢復計時（如果遊戲之前被暫停）
+      if (_currentBoard!.pauseStartTime != null) {
+        _currentBoard!.resumeTimer();
+      }
+      
       notifyListeners();
     }
   }

@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,

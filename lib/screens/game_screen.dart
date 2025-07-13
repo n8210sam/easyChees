@@ -19,6 +19,45 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
+    // 動態計算螢幕尺寸和佈局
+    final screenSize = MediaQuery.of(context).size;
+    final screenHeight = screenSize.height;
+    final screenWidth = screenSize.width;
+    final isPortrait = screenHeight > screenWidth;
+
+    // 計算各組件高度 - 響應式佈局
+    const appBarHeight = kToolbarHeight;
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+
+    // 根據螢幕尺寸調整高度
+    double gameInfoHeight, numberInputHeight, controlsHeight;
+
+    if (screenWidth >= 900) {
+      // 桌面 - 增加高度容納極大按鈕
+      gameInfoHeight = 100.0;
+      numberInputHeight = isPortrait ? 190.0 : 110.0;
+      controlsHeight = 100.0;
+    } else if (screenWidth >= 600) {
+      // 平板 - 增加高度容納極大按鈕
+      gameInfoHeight = 95.0;
+      numberInputHeight = isPortrait ? 180.0 : 105.0;
+      controlsHeight = 95.0;
+    } else {
+      // 手機
+      gameInfoHeight = 85.0;
+      numberInputHeight = isPortrait ? 110.0 : 65.0;
+      controlsHeight = 55.0;
+    }
+
+    const totalPadding = 24.0; // 總間距
+
+    final availableHeight = screenHeight - appBarHeight - statusBarHeight -
+                           gameInfoHeight - numberInputHeight - controlsHeight - totalPadding;
+
+    // 遊戲盤面尺寸（確保不超出螢幕，但盡可能大）
+    final maxBoardSize = screenWidth * 0.95;
+    final boardSize = availableHeight > maxBoardSize ? maxBoardSize : availableHeight;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -26,35 +65,13 @@ class _GameScreenState extends State<GameScreen> {
 
         final gameProvider = Provider.of<GameProvider>(context, listen: false);
 
-        // 暫停遊戲並保存
-        if (gameProvider.currentBoard != null && !gameProvider.isGamePaused) {
-          gameProvider.pauseGame();
+        // 自動暫停遊戲並保存，不詢問直接返回
+        if (gameProvider.currentBoard != null) {
+          await gameProvider.forcePauseGame(); // 強制暫停並保存
         }
 
-        // 顯示確認對話框
-        final shouldPop = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('離開遊戲'),
-            content: const Text('確定要回到主頁面嗎？遊戲進度將會保存。'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('取消'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('確定'),
-              ),
-            ],
-          ),
-        );
-
-        if (shouldPop == true && context.mounted) {
+        if (context.mounted) {
           Navigator.of(context).pop();
-        } else if (shouldPop == false) {
-          // 用戶取消，恢復遊戲
-          gameProvider.pauseGame();
         }
       },
       child: Scaffold(
@@ -134,37 +151,39 @@ class _GameScreenState extends State<GameScreen> {
 
           return Column(
             children: [
-              // Game Info
-              const GameInfoWidget(),
+              // Game Info - 響應式高度
+              SizedBox(
+                height: gameInfoHeight,
+                child: const GameInfoWidget(),
+              ),
 
-              // Sudoku Board
-              Expanded(
-                flex: 3,
+              // Sudoku Board - 使用計算的尺寸
+              Container(
+                height: boardSize,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: AspectRatio(
-                      aspectRatio: 1.0,
-                      child: SudokuBoardWidget(
-                        board: gameProvider.currentBoard!,
-                        selectedRow: gameProvider.selectedRow,
-                        selectedCol: gameProvider.selectedCol,
-                        highlightedNumber: gameProvider.highlightedNumber,
-                        lastSelectedNumber: gameProvider.lastSelectedNumber,
-                        onCellTap: gameProvider.selectCell,
-                        onCellLongPress: gameProvider.longPressCell,
-                        isNumberCompleted: gameProvider.isNumberCompleted,
-                      ),
+                  child: SizedBox(
+                    width: boardSize,
+                    height: boardSize,
+                    child: SudokuBoardWidget(
+                      board: gameProvider.currentBoard!,
+                      selectedRow: gameProvider.selectedRow,
+                      selectedCol: gameProvider.selectedCol,
+                      highlightedNumber: gameProvider.highlightedNumber,
+                      lastSelectedNumber: gameProvider.lastSelectedNumber,
+                      onCellTap: gameProvider.selectCell,
+                      onCellLongPress: gameProvider.longPressCell,
+                      isNumberCompleted: gameProvider.isNumberCompleted,
                     ),
                   ),
                 ),
               ),
 
-              // Number Input
-              Expanded(
-                flex: 1,
+              // Number Input - 固定高度
+              SizedBox(
+                height: numberInputHeight,
                 child: Container(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                   child: Column(
                     children: [
                       // 連續輸入提示
@@ -205,8 +224,11 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
 
-              // Game Controls (moved after number input)
-              const GameControlsWidget(),
+              // Game Controls - 響應式高度
+              SizedBox(
+                height: controlsHeight,
+                child: const GameControlsWidget(),
+              ),
             ],
           );
         },
