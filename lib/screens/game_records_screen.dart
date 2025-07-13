@@ -339,13 +339,17 @@ class _GameRecordsScreenState extends State<GameRecordsScreen>
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop();
-              await context.read<GameProvider>().recordService.clearAllRecords();
+              final navigator = Navigator.of(context);
+              final messenger = ScaffoldMessenger.of(context);
+              final gameProvider = context.read<GameProvider>();
+
+              navigator.pop();
+              await gameProvider.recordService.clearAllRecords();
               setState(() {
                 _loadData();
               });
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   const SnackBar(content: Text('已清除所有記錄')),
                 );
               }

@@ -243,7 +243,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _startNewGame(BuildContext context, Difficulty difficulty) {
     final gameProvider = Provider.of<GameProvider>(context, listen: false);
-    
+    final navigator = Navigator.of(context);
+
     // Show loading dialog
     showDialog(
       context: context,
@@ -252,23 +253,26 @@ class _HomeScreenState extends State<HomeScreen>
         child: CircularProgressIndicator(),
       ),
     );
-    
+
     gameProvider.startNewGame(difficulty).then((_) {
-      Navigator.of(context).pop(); // Close loading dialog
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const GameScreen(),
-        ),
-      );
+      if (mounted) {
+        navigator.pop(); // Close loading dialog
+        navigator.push(
+          MaterialPageRoute(
+            builder: (context) => const GameScreen(),
+          ),
+        );
+      }
     });
   }
 
   void _continueGame(BuildContext context) {
     final gameProvider = Provider.of<GameProvider>(context, listen: false);
-    
+    final navigator = Navigator.of(context);
+
     gameProvider.loadSavedGame().then((_) {
-      if (gameProvider.currentBoard != null) {
-        Navigator.of(context).push(
+      if (mounted && gameProvider.currentBoard != null) {
+        navigator.push(
           MaterialPageRoute(
             builder: (context) => const GameScreen(),
           ),

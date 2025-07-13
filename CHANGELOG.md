@@ -1,4 +1,9 @@
-﻿## [1.1.2] - 2025-07-13 14:58:23
+﻿## [1.1.3] - 2025-07-13 16:01:27
+
+### Change type: patch
+Fix all BuildContext async issues - clean code analysis
+
+## [1.1.2] - 2025-07-13 14:58:23
 
 ### Change type: patch
 Fix all code analysis issues for GitHub Actions
@@ -68,6 +73,7 @@ vm minor "?啣????"          # 摰?蝞∠?
 ---
 
 *甇斗?隞嗥?蝞∠?撌亙?芸?蝬剛風*
+
 
 
 
