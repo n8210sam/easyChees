@@ -678,6 +678,140 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // 自動完成功能：填入直行、橫列、宮格內只剩1格的空格
+  void autoComplete() {
+    if (_currentBoard == null || _isGamePaused) return;
+
+    int completedCells = 0;
+
+    // 檢查所有行
+    for (int row = 0; row < SudokuBoard.size; row++) {
+      completedCells += _autoCompleteRow(row);
+    }
+
+    // 檢查所有列
+    for (int col = 0; col < SudokuBoard.size; col++) {
+      completedCells += _autoCompleteColumn(col);
+    }
+
+    // 檢查所有宮格
+    for (int boxRow = 0; boxRow < 3; boxRow++) {
+      for (int boxCol = 0; boxCol < 3; boxCol++) {
+        completedCells += _autoCompleteBox(boxRow, boxCol);
+      }
+    }
+
+    if (completedCells > 0) {
+      // 清除相關筆記並檢查遊戲完成
+      _updateAfterAutoComplete();
+      notifyListeners();
+      _saveGame();
+    }
+  }
+
+  // 自動完成指定行
+  int _autoCompleteRow(int row) {
+    List<int> emptyCells = [];
+    Set<int> usedNumbers = {};
+
+    // 找出空格和已使用的數字
+    for (int col = 0; col < SudokuBoard.size; col++) {
+      final cell = _currentBoard!.getCell(row, col);
+      if (cell.value == 0) {
+        emptyCells.add(col);
+      } else {
+        usedNumbers.add(cell.value);
+      }
+    }
+
+    // 如果只剩一個空格，填入缺少的數字
+    if (emptyCells.length == 1) {
+      final missingNumbers = <int>{1, 2, 3, 4, 5, 6, 7, 8, 9}.difference(usedNumbers);
+      if (missingNumbers.length == 1) {
+        final col = emptyCells.first;
+        final value = missingNumbers.first;
+        _currentBoard!.setCellValue(row, col, value);
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+
+  // 自動完成指定列
+  int _autoCompleteColumn(int col) {
+    List<int> emptyCells = [];
+    Set<int> usedNumbers = {};
+
+    // 找出空格和已使用的數字
+    for (int row = 0; row < SudokuBoard.size; row++) {
+      final cell = _currentBoard!.getCell(row, col);
+      if (cell.value == 0) {
+        emptyCells.add(row);
+      } else {
+        usedNumbers.add(cell.value);
+      }
+    }
+
+    // 如果只剩一個空格，填入缺少的數字
+    if (emptyCells.length == 1) {
+      final missingNumbers = <int>{1, 2, 3, 4, 5, 6, 7, 8, 9}.difference(usedNumbers);
+      if (missingNumbers.length == 1) {
+        final row = emptyCells.first;
+        final value = missingNumbers.first;
+        _currentBoard!.setCellValue(row, col, value);
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+
+  // 自動完成指定宮格
+  int _autoCompleteBox(int boxRow, int boxCol) {
+    List<List<int>> emptyCells = [];
+    Set<int> usedNumbers = {};
+
+    // 找出空格和已使用的數字
+    for (int row = boxRow * 3; row < boxRow * 3 + 3; row++) {
+      for (int col = boxCol * 3; col < boxCol * 3 + 3; col++) {
+        final cell = _currentBoard!.getCell(row, col);
+        if (cell.value == 0) {
+          emptyCells.add([row, col]);
+        } else {
+          usedNumbers.add(cell.value);
+        }
+      }
+    }
+
+    // 如果只剩一個空格，填入缺少的數字
+    if (emptyCells.length == 1) {
+      final missingNumbers = <int>{1, 2, 3, 4, 5, 6, 7, 8, 9}.difference(usedNumbers);
+      if (missingNumbers.length == 1) {
+        final row = emptyCells.first[0];
+        final col = emptyCells.first[1];
+        final value = missingNumbers.first;
+        _currentBoard!.setCellValue(row, col, value);
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+
+  // 自動完成後的更新處理
+  void _updateAfterAutoComplete() {
+    // 清除所有已完成數字的筆記
+    for (int number = 1; number <= 9; number++) {
+      if (isNumberCompleted(number)) {
+        _clearCompletedNumberNotes(number);
+      }
+    }
+
+    // 檢查遊戲是否完成
+    _checkGameCompletion();
+  }
+
   void getHint() {
     if (_currentBoard == null || !hasSelectedCell || _isGamePaused) return;
     if (!canUseHint) return; // 檢查提示上限

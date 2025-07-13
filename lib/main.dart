@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sudoku_app/providers/game_provider.dart';
 import 'package:sudoku_app/providers/settings_provider.dart';
@@ -6,7 +6,7 @@ import 'package:sudoku_app/screens/home_screen.dart';
 import 'package:sudoku_app/utils/theme.dart';
 
 void main() {
-  print('=== 數獨遊戲啟動 - 版本 v2.8.0 ===');
+  print('=== 數獨遊戲啟動 - 版本 v1.1.0 ===');
   runApp(const SudokuApp());
 }
 
@@ -38,3 +38,4 @@ class SudokuApp extends StatelessWidget {
     );
   }
 }
+

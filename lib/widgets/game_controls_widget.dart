@@ -9,34 +9,60 @@ class GameControlsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
         children: [
-          // Notes Mode Toggle
-          Consumer<GameProvider>(
-            builder: (context, gameProvider, child) {
-              return _buildControlButton(
-                context,
-                icon: Icons.edit_note,
-                label: '筆記',
-                isActive: gameProvider.isNotesMode,
-                onTap: gameProvider.toggleNotesMode,
-              );
-            },
+          // 第一行：筆記、提示、自動完成
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Notes Mode Toggle
+              Consumer<GameProvider>(
+                builder: (context, gameProvider, child) {
+                  return _buildControlButton(
+                    context,
+                    icon: Icons.edit_note,
+                    label: '筆記',
+                    isActive: gameProvider.isNotesMode,
+                    onTap: gameProvider.toggleNotesMode,
+                  );
+                },
+              ),
+
+              // Hint Button
+              Consumer<GameProvider>(
+                builder: (context, gameProvider, child) {
+                  return _buildControlButton(
+                    context,
+                    icon: Icons.lightbulb_outline,
+                    label: '提示',
+                    isActive: false,
+                    onTap: () => _showHintDialog(context, gameProvider),
+                  );
+                },
+              ),
+
+              // Auto Complete Button
+              Consumer<GameProvider>(
+                builder: (context, gameProvider, child) {
+                  return _buildControlButton(
+                    context,
+                    icon: Icons.auto_fix_high,
+                    label: '自動完成',
+                    isActive: false,
+                    isEnabled: !gameProvider.isGamePaused,
+                    onTap: () => _showAutoCompleteDialog(context, gameProvider),
+                  );
+                },
+              ),
+            ],
           ),
-          
-          // Hint Button
-          Consumer<GameProvider>(
-            builder: (context, gameProvider, child) {
-              return _buildControlButton(
-                context,
-                icon: Icons.lightbulb_outline,
-                label: '提示',
-                isActive: false,
-                onTap: () => _showHintDialog(context, gameProvider),
-              );
-            },
-          ),
+
+          const SizedBox(height: 8),
+
+          // 第二行：撤銷、重做、擦除、連續輸入
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
           
           // Undo Button
           Consumer<GameProvider>(
@@ -80,17 +106,19 @@ class GameControlsWidget extends StatelessWidget {
             },
           ),
 
-          // Continuous Input Toggle
-          Consumer<GameProvider>(
-            builder: (context, gameProvider, child) {
-              return _buildControlButton(
-                context,
-                icon: Icons.touch_app,
-                label: '連續輸入',
-                isActive: gameProvider.isContinuousInputEnabled,
-                onTap: gameProvider.toggleContinuousInput,
-              );
-            },
+              // Continuous Input Toggle
+              Consumer<GameProvider>(
+                builder: (context, gameProvider, child) {
+                  return _buildControlButton(
+                    context,
+                    icon: Icons.touch_app,
+                    label: '連續輸入',
+                    isActive: gameProvider.isContinuousInputEnabled,
+                    onTap: gameProvider.toggleContinuousInput,
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -218,7 +246,44 @@ class GameControlsWidget extends StatelessWidget {
     );
   }
 
-
+  void _showAutoCompleteDialog(BuildContext context, GameProvider gameProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('自動完成'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('自動填入盤面上直行、橫列、宮格內只剩1格的空格。'),
+            SizedBox(height: 8),
+            Text(
+              '注意：此操作不可復原，也不會列入操作記錄。',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.orange,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              gameProvider.autoComplete();
+              _showMessage(context, '自動完成已執行', isSuccess: true);
+            },
+            child: const Text('確定'),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _handleUndo(BuildContext context, GameProvider gameProvider) {
     if (!gameProvider.canUndo) return;

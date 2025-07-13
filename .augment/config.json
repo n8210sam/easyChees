@@ -1,0 +1,228 @@
+{
+  "version": "1.0",
+  "performance": {
+    "indexing": {
+      "enabled": true,
+      "frequency": "low",
+      "throttleMs": 5000,
+      "batchSize": 50,
+      "maxConcurrency": 2,
+      "incrementalIndexing": true,
+      "smartIndexing": true
+    },
+    "memory": {
+      "maxHeapSize": "2048m",
+      "initialHeapSize": "512m",
+      "gcStrategy": "G1GC",
+      "enableCaching": true,
+      "cacheSize": "256m",
+      "cacheTTL": 3600000
+    },
+    "processing": {
+      "maxFiles": 100,
+      "maxFileSize": "1MB",
+      "timeout": 30000,
+      "enableLazyLoading": true,
+      "debounceDelay": 1000,
+      "enableParallelProcessing": true,
+      "workerThreads": 2
+    },
+    "analysis": {
+      "realTime": false,
+      "onSave": true,
+      "onOpen": false,
+      "throttleMs": 3000,
+      "enableDeepAnalysis": false,
+      "enableSemanticAnalysis": true,
+      "enableSyntaxAnalysis": true
+    }
+  },
+  "files": {
+    "include": [
+      "**/*.dart",
+      "**/*.js",
+      "**/*.ts",
+      "**/*.jsx",
+      "**/*.tsx",
+      "**/*.py",
+      "**/*.java",
+      "**/*.kt",
+      "**/*.swift",
+      "**/*.cpp",
+      "**/*.c",
+      "**/*.h",
+      "**/*.hpp",
+      "**/*.cs",
+      "**/*.go",
+      "**/*.rs",
+      "**/*.php",
+      "**/*.rb",
+      "**/*.scala",
+      "**/*.sh",
+      "**/*.yaml",
+      "**/*.yml",
+      "**/*.json",
+      "**/*.xml",
+      "**/*.md"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/build/**",
+      "**/dist/**",
+      "**/out/**",
+      "**/target/**",
+      "**/.dart_tool/**",
+      "**/.pub-cache/**",
+      "**/android/app/build/**",
+      "**/android/build/**",
+      "**/ios/build/**",
+      "**/ios/Pods/**",
+      "**/ios/Flutter/ephemeral/**",
+      "**/macos/build/**",
+      "**/macos/Flutter/ephemeral/**",
+      "**/windows/build/**",
+      "**/windows/flutter/ephemeral/**",
+      "**/linux/build/**",
+      "**/linux/flutter/ephemeral/**",
+      "**/web/build/**",
+      "**/.git/**",
+      "**/.svn/**",
+      "**/.hg/**",
+      "**/CVS/**",
+      "**/.DS_Store",
+      "**/Thumbs.db",
+      "**/*.log",
+      "**/*.tmp",
+      "**/*.temp",
+      "**/*.cache",
+      "**/*.lock",
+      "**/*.pid",
+      "**/*.seed",
+      "**/*.pid.lock",
+      "**/*.tgz",
+      "**/*.tar.gz",
+      "**/*.zip",
+      "**/*.rar",
+      "**/*.7z",
+      "**/*.dmg",
+      "**/*.iso",
+      "**/*.img",
+      "**/*.exe",
+      "**/*.dll",
+      "**/*.so",
+      "**/*.dylib",
+      "**/*.class",
+      "**/*.jar",
+      "**/*.war",
+      "**/*.ear",
+      "**/*.pyc",
+      "**/*.pyo",
+      "**/*.pyd",
+      "**/__pycache__/**",
+      "**/coverage/**",
+      "**/test-results/**",
+      "**/test_driver/**",
+      "**/integration_test/**"
+    ],
+    "maxFileSize": "1MB",
+    "encoding": "utf-8",
+    "enableBinaryFileDetection": true,
+    "enableSymlinkFollowing": false
+  },
+  "features": {
+    "codeCompletion": {
+      "enabled": true,
+      "maxSuggestions": 20,
+      "enableContextualSuggestions": true,
+      "enableSnippets": false
+    },
+    "diagnostics": {
+      "enabled": true,
+      "severity": "warning",
+      "enableRealTimeDiagnostics": false,
+      "enableBatchDiagnostics": true
+    },
+    "hover": {
+      "enabled": true,
+      "delay": 1000,
+      "enableRichContent": false
+    },
+    "navigation": {
+      "enabled": true,
+      "enableGoToDefinition": true,
+      "enableFindReferences": true,
+      "enableSymbolSearch": true,
+      "maxResults": 50
+    }
+  },
+  "logging": {
+    "level": "warn",
+    "enableFileLogging": false,
+    "enableConsoleLogging": true,
+    "maxLogFileSize": "10MB",
+    "logRotation": true
+  },
+  "developer": {
+    "commands": {
+      "bump-version": {
+        "description": "快速更新版本號 (patch)",
+        "script": "scripts/bump-version.ps1",
+        "usage": "bump-version [描述]",
+        "example": "bump-version \"新增自動完成功能\""
+      },
+      "version-manager": {
+        "description": "完整版本管理工具",
+        "script": "scripts/version-manager.ps1",
+        "usage": "version-manager [patch|minor|major] [描述]",
+        "example": "version-manager minor \"新增重要功能\""
+      },
+      "build-and-serve": {
+        "description": "構建並啟動 Web 服務器",
+        "commands": [
+          "flutter build web",
+          "python -m http.server 3000 --directory build/web"
+        ]
+      },
+      "quick-test": {
+        "description": "快速測試應用",
+        "commands": [
+          "flutter analyze",
+          "flutter test"
+        ]
+      },
+      "build-android": {
+        "description": "構建 Android APK",
+        "script": "scripts/build-android.ps1",
+        "usage": "build-android",
+        "example": "build-android"
+      },
+      "android-setup": {
+        "description": "顯示 Android 設置指南",
+        "commands": [
+          "type ANDROID_SETUP.md"
+        ]
+      },
+      "github-setup": {
+        "description": "設置 GitHub 倉庫進行 APK 構建",
+        "script": "scripts/setup-github.ps1",
+        "usage": "github-setup [repo-name] [username]",
+        "example": "github-setup easychees-sudoku myusername"
+      }
+    },
+    "shortcuts": {
+      "bv": "bump-version",
+      "vm": "version-manager",
+      "bs": "build-and-serve",
+      "qt": "quick-test",
+      "ba": "build-android",
+      "as": "android-setup",
+      "gs": "github-setup"
+    },
+    "autoCommands": {
+      "onFileChange": {
+        "dart": ["flutter analyze --no-fatal-infos"],
+        "pubspec.yaml": ["flutter pub get"]
+      }
+    }
+  }
+}

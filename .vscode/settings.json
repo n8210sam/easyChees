@@ -1,0 +1,181 @@
+{
+  // Augment 擴展性能優化設置
+  "augment.indexing.enabled": true,
+  "augment.indexing.frequency": "low",
+  "augment.indexing.throttle": 5000,
+  "augment.indexing.batchSize": 50,
+  "augment.indexing.maxConcurrency": 2,
+  
+  // 限制處理的文件類型 - 只處理重要的代碼文件
+  "augment.files.include": [
+    "**/*.dart",
+    "**/*.js",
+    "**/*.ts",
+    "**/*.jsx",
+    "**/*.tsx",
+    "**/*.py",
+    "**/*.java",
+    "**/*.kt",
+    "**/*.swift",
+    "**/*.cpp",
+    "**/*.c",
+    "**/*.h",
+    "**/*.hpp",
+    "**/*.cs",
+    "**/*.go",
+    "**/*.rs",
+    "**/*.php",
+    "**/*.rb",
+    "**/*.scala",
+    "**/*.sh",
+    "**/*.yaml",
+    "**/*.yml",
+    "**/*.json",
+    "**/*.xml",
+    "**/*.md"
+  ],
+  
+  // 排除不需要索引的文件和目錄
+  "augment.files.exclude": [
+    "**/node_modules/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/out/**",
+    "**/target/**",
+    "**/.dart_tool/**",
+    "**/.pub-cache/**",
+    "**/android/app/build/**",
+    "**/android/build/**",
+    "**/ios/build/**",
+    "**/ios/Pods/**",
+    "**/ios/Flutter/ephemeral/**",
+    "**/macos/build/**",
+    "**/macos/Flutter/ephemeral/**",
+    "**/windows/build/**",
+    "**/windows/flutter/ephemeral/**",
+    "**/linux/build/**",
+    "**/linux/flutter/ephemeral/**",
+    "**/web/build/**",
+    "**/.git/**",
+    "**/.svn/**",
+    "**/.hg/**",
+    "**/CVS/**",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/*.log",
+    "**/*.tmp",
+    "**/*.temp",
+    "**/*.cache",
+    "**/*.lock",
+    "**/*.pid",
+    "**/*.seed",
+    "**/*.pid.lock",
+    "**/*.tgz",
+    "**/*.tar.gz",
+    "**/*.zip",
+    "**/*.rar",
+    "**/*.7z",
+    "**/*.dmg",
+    "**/*.iso",
+    "**/*.img",
+    "**/*.exe",
+    "**/*.dll",
+    "**/*.so",
+    "**/*.dylib",
+    "**/*.class",
+    "**/*.jar",
+    "**/*.war",
+    "**/*.ear",
+    "**/*.pyc",
+    "**/*.pyo",
+    "**/*.pyd",
+    "**/__pycache__/**",
+    "**/coverage/**",
+    "**/test-results/**",
+    "**/test_driver/**",
+    "**/integration_test/**"
+  ],
+  
+  // 記憶體和性能優化
+  "augment.memory.maxHeapSize": "2048m",
+  "augment.memory.initialHeapSize": "512m",
+  "augment.performance.enableCaching": true,
+  "augment.performance.cacheSize": "256m",
+  "augment.performance.enableLazyLoading": true,
+  "augment.performance.debounceDelay": 1000,
+  
+  // 減少實時分析頻率
+  "augment.analysis.realTime": false,
+  "augment.analysis.onSave": true,
+  "augment.analysis.onOpen": false,
+  "augment.analysis.throttle": 3000,
+  
+  // 限制同時處理的文件數量
+  "augment.processing.maxFiles": 100,
+  "augment.processing.maxFileSize": "1MB",
+  "augment.processing.timeout": 30000,
+  
+  // VSCode 本身的性能優化設置
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/build/**": true,
+    "**/dist/**": true,
+    "**/.dart_tool/**": true,
+    "**/.pub-cache/**": true,
+    "**/android/app/build/**": true,
+    "**/ios/build/**": true,
+    "**/ios/Pods/**": true,
+    "**/macos/build/**": true,
+    "**/windows/build/**": true,
+    "**/linux/build/**": true
+  },
+  
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/.dart_tool": true,
+    "**/.pub-cache": true,
+    "**/android/app/build": true,
+    "**/ios/build": true,
+    "**/ios/Pods": true,
+    "**/macos/build": true,
+    "**/windows/build": true,
+    "**/linux/build": true
+  },
+  
+  // Flutter 特定設置
+  "dart.flutterSdkPath": "C:\\dev\\flutter",
+  "dart.analysisExcludedFolders": [
+    "build",
+    ".dart_tool",
+    ".pub-cache",
+    "android/app/build",
+    "ios/build",
+    "ios/Pods",
+    "macos/build",
+    "windows/build",
+    "linux/build"
+  ],
+  
+  // 編輯器性能優化
+  "editor.semanticHighlighting.enabled": false,
+  "editor.bracketPairColorization.enabled": false,
+  "editor.guides.bracketPairs": false,
+  "editor.minimap.enabled": false,
+  "editor.codeLens": false,
+  "editor.hover.delay": 1000,
+  "editor.quickSuggestions": {
+    "other": false,
+    "comments": false,
+    "strings": false
+  },
+  
+  // 工作區設置
+  "extensions.autoUpdate": false,
+  "extensions.autoCheckUpdates": false,
+  "telemetry.telemetryLevel": "off",
+  "update.mode": "manual"
+}
