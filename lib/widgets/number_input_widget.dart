@@ -121,7 +121,9 @@ class NumberInputWidget extends StatelessWidget {
                 ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
                 : (isCompleted
                     ? Colors.grey.shade100
-                    : Colors.white),
+                    : (isNotesMode
+                        ? Colors.yellow.shade50  // 筆記模式淡黃底色
+                        : Colors.white)),
             borderRadius: BorderRadius.circular(6),
             child: InkWell(
               onTap: isCompleted ? null : () => onNumberTap(number),
@@ -155,7 +157,7 @@ class NumberInputWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (!isNotesMode && remainingCount < 9)
+                    if (remainingCount < 9)
                       Positioned(
                         top: 1,
                         right: 2,

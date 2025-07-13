@@ -105,33 +105,39 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             const SizedBox(height: 48),
 
-            // New Game Buttons with animation
+            // New Game Buttons with animation - 困難度按鈕放在同一排
             SlideTransition(
               position: _slideAnimation,
-              child: Column(
+              child: Row(
                 children: [
-                  _buildDifficultyButton(
-                    context,
-                    '簡單',
-                    Difficulty.easy,
-                    Colors.green,
-                    Icons.sentiment_satisfied,
+                  Expanded(
+                    child: _buildDifficultyButton(
+                      context,
+                      '簡單',
+                      Difficulty.easy,
+                      Colors.green,
+                      Icons.sentiment_satisfied,
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  _buildDifficultyButton(
-                    context,
-                    '中等',
-                    Difficulty.medium,
-                    Colors.orange,
-                    Icons.sentiment_neutral,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDifficultyButton(
+                      context,
+                      '中等',
+                      Difficulty.medium,
+                      Colors.orange,
+                      Icons.sentiment_neutral,
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  _buildDifficultyButton(
-                    context,
-                    '困難',
-                    Difficulty.hard,
-                    Colors.red,
-                    Icons.sentiment_dissatisfied,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDifficultyButton(
+                      context,
+                      '困難',
+                      Difficulty.hard,
+                      Colors.red,
+                      Icons.sentiment_dissatisfied,
+                    ),
                   ),
                 ],
               ),
@@ -168,38 +174,37 @@ class _HomeScreenState extends State<HomeScreen>
 
             const SizedBox(height: 16),
 
-            // Game Records Button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _openGameRecords(context),
-                icon: const Icon(Icons.history),
-                label: const Text('遊戲記錄'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+            // Game Records and Settings Buttons - 記錄和設定按鈕放在同一排
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openGameRecords(context),
+                    icon: const Icon(Icons.history),
+                    label: const Text('遊戲記錄'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(
+                        color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Settings Button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _openSettings(context),
-                icon: const Icon(Icons.settings),
-                label: const Text('設定'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openSettings(context),
+                    icon: const Icon(Icons.settings),
+                    label: const Text('設定'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(
+                        color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
@@ -214,36 +219,33 @@ class _HomeScreenState extends State<HomeScreen>
     Color color,
     IconData icon,
   ) {
-    return SizedBox(
-      width: double.infinity,
-      child: TweenAnimationBuilder<double>(
-        duration: const Duration(milliseconds: 200),
-        tween: Tween(begin: 1.0, end: 1.0),
-        builder: (context, scale, child) {
-          return Transform.scale(
-            scale: scale,
-            child: ElevatedButton.icon(
-              onPressed: () => _startNewGame(context, difficulty),
-              icon: Icon(icon),
-              label: Text(title),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                elevation: 4,
-                shadowColor: color.withValues(alpha: 0.4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 200),
+      tween: Tween(begin: 1.0, end: 1.0),
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: ElevatedButton.icon(
+            onPressed: () => _startNewGame(context, difficulty),
+            icon: Icon(icon),
+            label: Text(title),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              textStyle: const TextStyle(
+                fontSize: 16, // 稍微縮小字體以適應較窄的按鈕
+                fontWeight: FontWeight.w600,
+              ),
+              elevation: 4,
+              shadowColor: color.withValues(alpha: 0.4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

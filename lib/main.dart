@@ -19,13 +19,14 @@ void main() async {
 
   // 開發環境版本號 Log (開發規範要求)
   // ignore: avoid_print
-  print('🚀 === 數獨遊戲啟動 - 版本 v1.2.9+18 === 🚀');
+  print('🚀 === 數獨遊戲啟動 - 版本 v1.2.14+23 (數字鍵取消選中) === 🚀');
 
   // Additional debug info (only in debug mode)
   if (kDebugMode) {
     debugPrint('🔧 Debug Mode: 數獨遊戲開發環境');
     debugPrint('📱 Platform: ${defaultTargetPlatform.name}');
     debugPrint('🔒 強制直式顯示已啟用');
+    debugPrint('🚀 Context7 MCP: 已集成最新代碼文檔支持');
   }
 
   runApp(const SudokuApp());

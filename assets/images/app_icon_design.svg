@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="1024" height="1024" fill="#ffffff" rx="180" ry="180"/>
+  
+  <!-- 外框 -->
+  <rect x="128" y="128" width="768" height="768" fill="none" stroke="#0175C2" stroke-width="12" rx="24" ry="24"/>
+  
+  <!-- 九宮格線條 -->
+  <!-- 垂直線 -->
+  <line x1="384" y1="128" x2="384" y2="896" stroke="#0175C2" stroke-width="8"/>
+  <line x1="640" y1="128" x2="640" y2="896" stroke="#0175C2" stroke-width="8"/>
+  
+  <!-- 水平線 -->
+  <line x1="128" y1="384" x2="896" y2="384" stroke="#0175C2" stroke-width="8"/>
+  <line x1="128" y1="640" x2="896" y2="640" stroke="#0175C2" stroke-width="8"/>
+  
+  <!-- 抽象幾何元素 -->
+  <!-- 左上角 - 圓形 -->
+  <circle cx="256" cy="256" r="48" fill="#0175C2"/>
+  
+  <!-- 中上 - 方形 -->
+  <rect x="464" y="208" width="96" height="96" fill="#4A90E2" rx="12" ry="12"/>
+  
+  <!-- 右上角 - 三角形 -->
+  <polygon points="768,208 720,304 816,304" fill="#0175C2"/>
+  
+  <!-- 左中 - 菱形 -->
+  <polygon points="256,512 208,464 256,416 304,464" fill="#4A90E2"/>
+  
+  <!-- 中心 - 六邊形 -->
+  <polygon points="512,464 544,488 544,536 512,560 480,536 480,488" fill="#0175C2"/>
+  
+  <!-- 右中 - 橢圓 -->
+  <ellipse cx="768" cy="512" rx="56" ry="32" fill="#4A90E2"/>
+  
+  <!-- 左下角 - 圓角方形 -->
+  <rect x="208" y="688" width="96" height="96" fill="#0175C2" rx="24" ry="24"/>
+  
+  <!-- 中下 - 星形 -->
+  <polygon points="512,688 524,720 556,720 532,744 540,776 512,760 484,776 492,744 468,720 500,720" fill="#4A90E2"/>
+  
+  <!-- 右下角 - 圓環 -->
+  <circle cx="768" cy="768" r="48" fill="none" stroke="#0175C2" stroke-width="16"/>
+  <circle cx="768" cy="768" r="20" fill="#0175C2"/>
+</svg>

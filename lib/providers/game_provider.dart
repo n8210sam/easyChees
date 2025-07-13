@@ -460,14 +460,18 @@ class GameProvider extends ChangeNotifier {
   void inputNumber(int number) {
     if (_currentBoard == null || _isGamePaused || _isGameOver) return;
 
-    // 設置選中的數字
-    _lastSelectedNumber = number;
-
-    // 設置醒目數字：選中數字鍵時醒目盤面該數字
-    _setHighlightedNumber(number);
-
-    // 檢查是否需要填入數字
-    _tryFillNumber();
+    // 新邏輯：如果點擊已選中的數字鍵，取消選中
+    if (_lastSelectedNumber == number) {
+      // 取消選中
+      _lastSelectedNumber = null;
+      _setHighlightedNumber(null); // 清除醒目數字
+      // 不調用 _tryFillNumber()，不填入數字，不切換筆記
+    } else {
+      // 點擊未選中的數字鍵：選中並嘗試操作
+      _lastSelectedNumber = number;
+      _setHighlightedNumber(number); // 設置醒目數字
+      _tryFillNumber(); // 檢查是否需要填入數字或切換筆記
+    }
 
     notifyListeners();
   }

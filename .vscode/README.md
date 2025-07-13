@@ -78,6 +78,28 @@ Flutter 應用的調試配置，包含性能優化參數。
 2. 查看 Console 標籤中的 Augment 相關日誌
 3. 監控 CPU 和記憶體使用情況
 
+## 🚀 Context7 MCP 集成
+
+已成功集成 Context7 MCP 服務器，提供最新的代碼文檔支持：
+
+### 配置位置
+- **VSCode MCP 設置**：`.vscode/settings.json` 中的 `mcp.servers.context7`
+- **Augment 項目配置**：`.augment/config.json` 中的 `project.mcp.context7`
+
+### 使用方法
+在 AI 助手對話中添加 `use context7`：
+```
+implement flutter provider pattern. use context7
+create responsive flutter layout. use context7
+```
+
+### 測試連接
+```bash
+c7  # 快捷指令測試 Context7 連接
+```
+
+詳細說明請參考：**[CONTEXT7_SETUP.md](../CONTEXT7_SETUP.md)**
+
 ## 進一步優化
 
 如果性能問題仍然存在，可以考慮：
@@ -85,9 +107,11 @@ Flutter 應用的調試配置，包含性能優化參數。
 2. 增加更多排除目錄
 3. 調整記憶體設置
 4. 禁用某些 Augment 功能
+5. **使用 Context7 MCP 減少本地索引依賴**
 
 ## 注意事項
 
 - 這些設置可能會影響 Augment 擴展的某些功能
 - 建議根據實際使用情況調整配置
 - 定期檢查和更新配置以獲得最佳性能
+- **重啟 VSCode 以確保 MCP 配置生效**
