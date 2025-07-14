@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sudoku_app/models/sudoku_board.dart';
 import 'package:sudoku_app/models/sudoku_cell.dart';
 import 'package:sudoku_app/utils/theme.dart';
+import 'package:sudoku_app/providers/game_provider.dart';
 
 class SudokuBoardWidget extends StatelessWidget {
   final SudokuBoard board;
@@ -172,13 +173,8 @@ class SudokuBoardWidget extends StatelessWidget {
   }
 
   String _getNoteDisplayText(int number, bool isHighlighted) {
-    if (isHighlighted) {
-      // 醒目筆記數字：使用圓圈數字
-      const circleNumbers = ['⓿', '❶', '❷', '❸', '❹', '❺', '❻', '❼', '❽', '❾'];
-      return circleNumbers[number];
-    }
-    // 普通筆記數字
-    return number.toString();
+    // 使用統一的醒目數字顯示邏輯
+    return GameProvider.getHighlightDisplayText(number, isHighlighted);
   }
 
   Color _getNoteTextColor(BuildContext context, int number) {
@@ -239,14 +235,11 @@ class SudokuBoardWidget extends StatelessWidget {
     }
 
     // 醒目數字：如果格子的數字與醒目數字相同且不是錯誤，顯示圓圈數字
-    if (highlightedNumber != null &&
+    bool isHighlighted = highlightedNumber != null &&
         cell.value == highlightedNumber &&
-        !board.isCellError(row, col)) {
-      const circleNumbers = ['⓿', '❶', '❷', '❸', '❹', '❺', '❻', '❼', '❽', '❾'];
-      return circleNumbers[cell.value];
-    }
+        !board.isCellError(row, col);
 
-    // 普通數字
-    return cell.value.toString();
+    // 使用統一的醒目數字顯示邏輯
+    return GameProvider.getHighlightDisplayText(cell.value, isHighlighted);
   }
 }

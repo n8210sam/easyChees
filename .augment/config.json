@@ -164,7 +164,7 @@
   },
   "project": {
     "name": "數獨遊戲 (EasyChees Sudoku)",
-    "version": "v1.2.14+23",
+    "version": "v1.2.15+24",
     "github": "https://github.com/n8210sam/easyChees",
     "documentation": {
       "standards": "DEVELOPMENT_STANDARDS.md",

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sudoku_app/models/sudoku_board.dart';
 import 'package:sudoku_app/models/sudoku_cell.dart';
@@ -6,6 +7,7 @@ import 'package:sudoku_app/models/game_record.dart';
 import 'package:sudoku_app/services/sudoku_generator.dart';
 import 'package:sudoku_app/services/storage_service.dart';
 import 'package:sudoku_app/services/game_record_service.dart';
+import 'package:sudoku_app/utils/theme.dart';
 import 'settings_provider.dart';
 
 // 遊戲操作類型
@@ -42,6 +44,9 @@ class GameAction {
 }
 
 class GameProvider extends ChangeNotifier {
+  // 統一的圓圈數字常數
+  static const circleNumbers = ['⓿', '❶', '❷', '❸', '❹', '❺', '❻', '❼', '❽', '❾'];
+
   SudokuBoard? _currentBoard;
   int? _selectedRow;
   int? _selectedCol;
@@ -96,6 +101,40 @@ class GameProvider extends ChangeNotifier {
       _highlightedNumber = null;
       notifyListeners();
     }
+  }
+
+  // 統一的醒目數字顯示邏輯
+  static String getHighlightDisplayText(int number, bool isHighlighted) {
+    return isHighlighted ? circleNumbers[number] : number.toString();
+  }
+
+  // 統一的設定頁預覽格子構建方法
+  static Widget buildHighlightPreviewCell({
+    required String number,
+    required bool isHighlighted,
+    required BuildContext context,
+  }) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: isHighlighted ? AppTheme.cellHighlight : Colors.white,
+        border: Border.all(color: AppTheme.cellBorder),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Center(
+        child: Text(
+          getHighlightDisplayText(int.parse(number), isHighlighted),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: isHighlighted
+                ? Theme.of(context).primaryColor
+                : Colors.black87,
+          ),
+        ),
+      ),
+    );
   }
 
   // 播放錯誤回饋（音效和震動）

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sudoku_app/providers/settings_provider.dart';
+import 'package:sudoku_app/providers/game_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -68,8 +69,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSectionHeader('遊戲設定'),
               _buildSettingTile(
                 context,
-                title: '醒目數字',
-                subtitle: '開啟後，在選取數字時會強調所選數字',
+                title: '醒目所選數字',
+                subtitle: '選取數字時醒目顯示盤面上的相同數字',
                 icon: Icons.highlight,
                 value: settingsProvider.highlightSameNumbers,
                 onChanged: settingsProvider.setHighlightSameNumbers,
@@ -114,9 +115,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               const SizedBox(height: 24),
 
-              // 醒目數字預覽
+              // 醒目所選數字預覽
               if (settingsProvider.highlightSameNumbers) ...[
-                _buildSectionHeader('醒目數字預覽'),
+                _buildSectionHeader('醒目所選數字預覽'),
                 _buildHighlightPreview(context),
                 const SizedBox(height: 16),
               ],
@@ -202,7 +203,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '當選擇數字 5 時的效果：',
+              '當選擇數字 5 時的醒目效果：',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
@@ -218,7 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '相同數字會以背景色高亮顯示',
+              '相同數字會以圓圈數字和背景色醒目顯示',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[600],
@@ -231,31 +232,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildPreviewCell(String number, bool isHighlighted) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: isHighlighted 
-            ? Colors.blue.withValues(alpha: 0.2)
-            : Colors.grey.withValues(alpha: 0.1),
-        border: Border.all(
-          color: isHighlighted 
-              ? Colors.blue.withValues(alpha: 0.5)
-              : Colors.grey.withValues(alpha: 0.3),
-          width: isHighlighted ? 2 : 1,
-        ),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Center(
-        child: Text(
-          number,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
-            color: isHighlighted ? Colors.blue[700] : Colors.black87,
-          ),
-        ),
-      ),
+    // 使用統一的醒目數字預覽邏輯
+    return GameProvider.buildHighlightPreviewCell(
+      number: number,
+      isHighlighted: isHighlighted,
+      context: context,
     );
   }
 
